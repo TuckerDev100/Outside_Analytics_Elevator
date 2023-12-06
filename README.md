@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+===========================================================
+•       Provide code that simulates an elevator. You are free to use any language.
+•       Upload the completed project to GitHub for discussion during interview.
+•       Document all assumptions and any features that weren’t implemented.
+•       The result should be an executable, or script, that can be run with the following inputs and generate the following outputs.
+        Inputs: [list of floors to visit] (e.g. elevator start=12 floor=2,9,1,32)
+        Outputs: [total travel time, floors visited in order] (e.g. 560 12,2,9,1,32)
+        Program Constants:
+        Single floor travel time: 10
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+To Consider:
 
-In the project directory, you can run:
+The Elevator Car:
+Max weight of the elevator
+State of the elevator {up, down, stop}. Elevator door only opens when stopped
+Speed of the elevator
+panel of buttons
+Emergency buttons
+Display (floor and direction)
 
-### `npm start`
+The Elevator System:
+The floors being serviced
+Elevator buttons at each floor {up, down, null}
+Display (floor and direction)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+How many floors does the building have?
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+ASSUMPTION:
+This is the only elevator for the building.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+Elevator Optimizations:
+Optimize for minimizing wait time :
+1: Go to the nearest floor with a passenger waiting
+2: Take them to their destination, picking up any passengers going in the same direction
+PROBLEM: In a tall building with lots of people going back and forth from the 1st and 2nd floor, someone waiting on the top floor will
+be stuck.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Optimize for every passenger being served in a reasonable timeframe:
+1: Go all the way to the top, then all the way to the bottom
+2: Start going all the way to the top. If there are no more requests above, start going down.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Let's say someone is on the 2nd floor and wants to go down to the 1st floor. The elevator is currently going up
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
