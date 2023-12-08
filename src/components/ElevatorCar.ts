@@ -14,6 +14,7 @@ interface ElevatorState {
   dockRequests: number[];
   upRequests: number[];
   downRequests: number[];
+  logDone: boolean;
 }
  export default class ElevatorCar {
   private emergencyStop: boolean;
@@ -33,6 +34,7 @@ interface ElevatorState {
   private dockRequests: number[];
   private upRequests: number[];
   private downRequests: number[];
+  private logDone: boolean;
 
   constructor(state: ElevatorState) {
     this.updateState({
@@ -51,9 +53,34 @@ interface ElevatorState {
       dockRequests: state.dockRequests,
       upRequests: state.upRequests,
       downRequests: state.downRequests,
+      logDone: state.logDone
+
     });
   }
 
+  
+  public logState(): void {
+    const elevatorState: ElevatorState = {
+      emergencyStop: this.emergencyStop,
+      fireMode: this.fireMode,
+      doorStuck: this.doorStuck,
+      maxWeight: this.maxWeight,
+      currWeight: this.currWeight,
+      travelTime: this.travelTime,
+      floorsStoppedAt: this.floorsStoppedAt,
+      totalFloors: this.totalFloors,
+      direction: this.direction,
+      motion: this.motion,
+      currFloor: this.currFloor,
+      doorOpen: this.doorOpen,
+      dockRequests: this.dockRequests,
+      upRequests: this.upRequests,
+      downRequests: this.downRequests,
+      logDone: this.logDone,
+    };
+
+    console.log('Elevator State:', elevatorState);
+  }
 
 
 private updateState(newState: Partial<ElevatorState>): void {
@@ -73,17 +100,17 @@ private updateState(newState: Partial<ElevatorState>): void {
   this.dockRequests = newState.dockRequests ?? this.dockRequests;
   this.upRequests = newState.upRequests ?? this.upRequests;
   this.downRequests = newState.downRequests ?? this.downRequests;
+  this.logDone = newState.logDone ?? this.logDone;
 
 }
 
-  private sleep(seconds: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-  }
+
 
   private wakeUpElevator(): void | null  {
     console.log("Elevator is waking up")
     if (this.safetyCheck()) {
       if (this.dockRequests.length > 0) {
+        //TODO revisit this
         const upDockRequests = this.dockRequests.filter(floor => floor > this.currFloor).length;
         const downDockRequests = this.dockRequests.filter(floor => floor < this.currFloor).length;
   
@@ -119,7 +146,7 @@ private updateState(newState: Partial<ElevatorState>): void {
     if (!this.safetyCheck()) {
       return null;
     }
-
+  
     this.motion = 'awaiting';
   
     if (
@@ -131,29 +158,25 @@ private updateState(newState: Partial<ElevatorState>): void {
     }
   
     if (this.direction === 'down' && (!this.dockRequests.some((floor) => floor < this.currFloor) && (this.currFloor === 0 || this.downRequests.length === 0 || !this.downRequests.some((floor) => floor < this.currFloor)))) {
-      console.log(`setting direction to up`);
-
       this.direction = 'up';
     } else if (this.direction === 'up' && (this.currFloor === this.totalFloors || !this.upRequests.some((floor) => floor > this.currFloor))) {
-      console.log(`setting direction to down`);
-
       this.direction = 'down';
     }
   
+    // Check if there are any requests, reset logDone if true
+    if (this.dockRequests.length > 0 || this.upRequests.length > 0 || this.downRequests.length > 0) {
+      this.logDone = false;
+    }
+  
     if (this.dockRequests.length === 0 && this.upRequests.length === 0 && this.downRequests.length === 0) {
-      console.log(`setting motion to rest`);
-
-      this.motion = 'rest';
-    } 
+      this.motion = 'gotToRest';
+      this.logDone = true;
+    }
   }
 
-  //TODO on rest() write the results to a log file and clear the travelTime and floorsVisited
 
 
-
-  private async dock(): Promise<void> {
-    // TODO: Add to floors stopped at
-    this.floorsStoppedAt.push(this.currFloor); // Add the current floor to the list of stopped floors
+  private dock(): void {
   
     this.motion = 'stop';
     this.doorOpen = true;
@@ -177,13 +200,7 @@ private updateState(newState: Partial<ElevatorState>): void {
           this.downRequests.splice(downIndex, 1);
         }
       });
-  
-      console.log('Opening doors');
-  
-      // Assuming a 3-second delay
-      await this.sleep(3);
-  
-      console.log('Closing doors');
+
       this.doorOpen = false;
     }
   }
@@ -191,38 +208,32 @@ private updateState(newState: Partial<ElevatorState>): void {
   private dockCheck(): void {
     let dockPerformed = false;
   
-    if (this.currFloor === this.dockRequests.find((floor) => floor === this.currFloor)) {
-      dockPerformed = true;
-      this.travelTime += 5;
-      (async () => {
+    const dockIfNeeded = (floor: number): void => {
+      if (this.currFloor === floor) {
+        dockPerformed = true;
+        this.travelTime += 5;
         console.log(`docking at floor: ${this.currFloor}`);
-        await this.dock();
-      })();
+        this.dock();
+  
+        // Add the floor to floorsStoppedAt array
+        this.floorsStoppedAt.push(this.currFloor);
+      }
+    };
+  
+    if (this.dockRequests.includes(this.currFloor)) {
+      dockIfNeeded(this.currFloor);
     } else if (this.direction === 'up' && this.upRequests.includes(this.currFloor)) {
-      dockPerformed = true;
-      this.travelTime += 5;
-      (async () => {
-        console.log(`docking at floor: ${this.currFloor}`);
-        await this.dock();
-      })();
+      dockIfNeeded(this.currFloor);
     } else if (this.direction === 'down' && this.downRequests.includes(this.currFloor)) {
-      dockPerformed = true;
-      this.travelTime += 5;
-      (async () => {
-        console.log(`docking at floor: ${this.currFloor}`);
-        await this.dock();
-      })();
+      dockIfNeeded(this.currFloor);
     }
   
     if (!dockPerformed) {
-      console.log(`passing floor: ${this.currFloor}`);
       this.travelTime += 1; // Increment by 1 when dock() is not performed
     }
   
-    this.sleep(1).then(() => {
-      this.routeCheck();
-      this.moveFloor();
-    });
+    this.routeCheck();
+    this.moveFloor();
   }
 
   private moveFloor(): void {
@@ -230,25 +241,21 @@ private updateState(newState: Partial<ElevatorState>): void {
       this.motion = 'moving';
     }
   
-    if (this.motion === 'rest') {
-      console.log(`no requests to service, assuming rest position`);
+    if (this.motion === 'goToRest') {
       if (this.currFloor > 0) {
         // Move down one floor if not already at the ground floor
         this.currFloor--;
         this.direction = 'down';
       } else {
         // Handle the case when motion is 'rest' and currFloor is already at zero
-        this.motion = 'rest';
         return;
       }
     } else {
       // Handle the cases when motion is 'moving' or 'awaiting'
       if (this.direction === 'up' && this.currFloor < this.totalFloors) {
-        console.log(`going up`);
         // Move up one floor if not already at the top floor
         this.currFloor++;
       } else if (this.direction === 'down' && this.currFloor > 0) {
-        console.log(`going down`);
         // Move down one floor if not already at the ground floor
         this.currFloor--;
       }
@@ -260,14 +267,34 @@ private updateState(newState: Partial<ElevatorState>): void {
 
 
   private rest(): void {
-    console.log('ElevatorCar Object:', this); 
-    const invokeDockCheck = () => {
-      this.dockCheck();
-      if (this.motion === 'rest') {
-        setTimeout(invokeDockCheck, 5000); // Invoke dockCheck every 5 seconds if motion is still 'rest'
+    console.log('rest invoked');
+  
+    // Check if the elevator is at the ground floor and in rest motion
+    if (this.currFloor === 0 && this.motion === 'rest' && this.logDone) {
+      // Log elevator state once if logDone is false
+      if (!this.logDone) {
+        console.log('logState called');
+        this.logState();
+        this.logDone = false;
       }
-    };
-    invokeDockCheck(); // Start the recursive invocation
+  
+      const dockCheckHandler = () => {
+        console.log('resting dockCheck called');
+        this.dockCheck();
+  
+        // Check if the motion is no longer 'rest' or new requests are received
+        if (this.motion !== 'rest' || this.dockRequests.length > 0 || this.upRequests.length > 0 || this.downRequests.length > 0) {
+          // Reset logDone to ensure logState is invoked again if needed
+          this.logDone = false;
+        } else {
+          // Schedule the next check after 5 seconds
+          setTimeout(dockCheckHandler, 5000);
+        }
+      };
+  
+      // Perform the initial dockCheck immediately
+      dockCheckHandler();
+    }
   }
 
   private safetyCheck(): boolean {
@@ -293,7 +320,6 @@ private updateState(newState: Partial<ElevatorState>): void {
     }
 
     else {
-      console.log(`safety check passed`);
       return true;
     }
 
