@@ -29,6 +29,7 @@ function App() {
     const dockRequestsInput = await askForInput('What floors need to be visited? (comma-separated)', 'dockRequests');
 
     // Map string input to integers
+
     const dockRequestsArray = dockRequestsInput.dockRequests.split(',').map((floor) => parseInt(floor.trim(), 10));
 
     // Create ElevatorCar instance when all inputs are collected
@@ -44,11 +45,12 @@ function App() {
       travelTime: 0,
       floorsStoppedAt: [],
       direction: null,
-      motion: 'waiting',
+      motion: 'awaiting',
       doorOpen: true,
       upRequests: [],
       downRequests: [],
-      logDone: false
+      logDone: false,
+      nap: false
     });
 
     // Set the instance to state
