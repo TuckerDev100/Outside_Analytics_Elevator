@@ -1,4 +1,4 @@
-interface ElevatorState {
+export interface ElevatorState {
   emergencyStop: boolean;
   fireMode: boolean;
   doorStuck: boolean;
