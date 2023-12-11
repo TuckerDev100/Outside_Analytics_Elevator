@@ -1,12 +1,11 @@
 import ElevatorCar, { ElevatorState } from "../ElevatorCar";
 import { Direction } from "../../enums/Direction";
-jest.useFakeTimers(); // Enable fake timers
+jest.useFakeTimers();
 
 describe("ElevatorCar", () => {
   let elevatorCar: ElevatorCar;
 
   beforeEach(() => {
-    // Default state for testing
     const defaultState: ElevatorState = {
       emergencyStop: false,
       fireMode: false,
@@ -40,20 +39,16 @@ describe("ElevatorCar", () => {
         downRequests: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       };
 
-      // Spy on the routeCheck method
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
 
-      // Apply the custom state
       elevatorCar.updateState(customState);
 
       // When
       elevatorCar.wakeUpElevator();
 
       // Then
-      // Check if 'direction' is set to 'up'
       expect(elevatorCar.direction).toBe(Direction.Up);
 
-      // Check if routeCheck is called
       expect(spyMoveFloor).toHaveBeenCalled();
     });
 
@@ -149,10 +144,9 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
     
       // Then
-      // Check if requests matching currFloor have been removed from their respective queues
-      expect(elevatorCar.dockRequests).toEqual([2]); // Only remove the dockRequest matching currFloor
-      expect(elevatorCar.upRequests).toEqual([1, 2, 3, 5, 6, 7, 8, 9, 10]); // Requests for floors above currFloor
-      expect(elevatorCar.downRequests).toEqual([1, 2, 3, 5, 6, 7, 8, 9, 10]); // Requests for floors below currFloor
+      expect(elevatorCar.dockRequests).toEqual([2]);
+      expect(elevatorCar.upRequests).toEqual([1, 2, 3, 5, 6, 7, 8, 9, 10]);
+      expect(elevatorCar.downRequests).toEqual([1, 2, 3, 5, 6, 7, 8, 9, 10]);
     
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
@@ -179,10 +173,9 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
     
       // Then
-      // Check if requests matching currFloor have been removed from their respective queues
-      expect(elevatorCar.dockRequests).toEqual([]); // Only remove the dockRequest matching currFloor
-      expect(elevatorCar.upRequests).toEqual([1, 2, 4, 5, 6, 7, 8, 9]); // Requests for floors above currFloor
-      expect(elevatorCar.downRequests).toEqual([2, 4, 5, 6, 7, 8, 9, 10]); // Requests for floors below currFloor
+      expect(elevatorCar.dockRequests).toEqual([]);
+      expect(elevatorCar.upRequests).toEqual([1, 2, 4, 5, 6, 7, 8, 9]);
+      expect(elevatorCar.downRequests).toEqual([2, 4, 5, 6, 7, 8, 9, 10]);
     
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
@@ -209,12 +202,10 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
     
       // Then
-      // Check if requests matching currFloor have been removed from their respective queues
-      expect(elevatorCar.dockRequests).toEqual([]); // Only remove the dockRequest matching currFloor
-      expect(elevatorCar.upRequests).toEqual([1, 2, 3, 4, 5, 6, 8, 9, 10]); // Requests for floors above currFloor
-      expect(elevatorCar.downRequests).toEqual([1, 2, 3, 4, 5, 6, 8, 9, 10]); // Requests for floors below currFloor
+      expect(elevatorCar.dockRequests).toEqual([]);
+      expect(elevatorCar.upRequests).toEqual([1, 2, 3, 4, 5, 6, 8, 9, 10]);
+      expect(elevatorCar.downRequests).toEqual([1, 2, 3, 4, 5, 6, 8, 9, 10]);
     
-      // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
       expect(elevatorCar.direction).toBe(Direction.Down);
@@ -241,16 +232,13 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
     
       // Then
-      // Check if requests matching currFloor have been removed from their respective queues
       expect(spyHandleNonDockRequests).toHaveBeenCalled();
       expect(spyChooseDirectionBasedOnClosestFloors).toHaveBeenCalled();
-
 
       expect(elevatorCar.dockRequests).toEqual([]); 
       expect(elevatorCar.upRequests).toEqual([0,1,2,3,4,6,7,8,9,10]); 
       expect(elevatorCar.downRequests).toEqual([0,1,2,3,4,6,7,8,9,10]); 
     
-      // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
       expect(elevatorCar.direction).toBe(Direction.Down);
@@ -277,7 +265,6 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
     
       // Then
-      // Check if requests matching currFloor have been removed from their respective queues
       expect(spyHandleNonDockRequests).toHaveBeenCalled();
       expect(spyChooseDirectionBasedOnClosestFloors).toHaveBeenCalled();
 
@@ -286,12 +273,193 @@ describe("ElevatorCar", () => {
       expect(elevatorCar.upRequests).toEqual([]); 
       expect(elevatorCar.downRequests).toEqual([]); 
     
-      // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
       expect(elevatorCar.direction).toBe(Direction.Down);
     });
   });
+
+
+  describe("routeCheck", () => {
+    test("there are dockRequests below: call move", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Down,
+        dockRequests: [1, 2, 3, 4],
+      };
+
+      elevatorCar.updateState(customState);
+
+      const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(spyMoveFloor).toHaveBeenCalled();
+    });
+
+    test("Direction is set to Down no dockRequests below currFloor: set direction to Up", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Down,
+        dockRequests: [6, 7, 8, 9, 10],
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Up);
+    });
+
+    test("Direction is set to Up no dockRequests above currFloor: set direction to Down", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Up,
+        dockRequests: [1, 3, 4, 2],
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Down);
+    });
+
+    test("No dockRequests, upRequests higher than currFloor: Direction should stay Up", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Up,
+        dockRequests: [],
+        upRequests: [9],
+        downRequests: [7,9,2,6,8,2,4]
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Up);
+    });
+
+    test("No dockRequests, downRequests lower than currFloor: Direction should stay Down", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Down,
+        dockRequests: [],
+        upRequests: [7,9,2,6,8,2,4],
+        downRequests: [4]
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Down);
+    });
+
+    test("Direction is down, downRequests lower than currFloor, dockRequests all higher than currFloor: Direction should stay Down", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Down,
+        dockRequests: [6,7,8,9],
+        upRequests: [7,9,2,6,8,2,4],
+        downRequests: [4]
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Down);
+    });
+
+    test("Direction is up, upRequests higher than currFloor, dockRequests all lower than currFloor: Direction should stay up", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Up,
+        dockRequests: [1,2,3,4],
+        upRequests: [6],
+        downRequests: [1,2,3,4,5,6,7,8,9,10]
+      };
+
+      elevatorCar.updateState(customState);
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Up);
+    });
+
+    test("there are no requests, currFloor > 0: Direction change to down, moveFloor invoked", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 5,
+        direction: Direction.Up,
+        dockRequests: [],
+        upRequests: [],
+        downRequests: []
+      };
+
+      elevatorCar.updateState(customState);
+
+      const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
+
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Down);
+      expect(spyMoveFloor).toHaveBeenCalled();
+    });
+
+    test("there are no requests, currFloor === 0: Direction change to down, rest invoked", () => {
+      // Given
+      const customState: Partial<ElevatorState> = {
+        currFloor: 0,
+        direction: Direction.Up,
+        dockRequests: [],
+        upRequests: [],
+        downRequests: []
+      };
+
+      elevatorCar.updateState(customState);
+
+      const spyRest = jest.spyOn(elevatorCar, 'rest');
+
+
+      // When
+      elevatorCar.routeCheck();
+
+      // Then
+      expect(elevatorCar.direction).toBe(Direction.Down);
+      expect(spyRest).toHaveBeenCalled();
+    });
+
+});
+
+
+  
 
   // Add more tests for other methods or scenarios
 });

@@ -112,15 +112,16 @@ export default class ElevatorCar {
   private noRequestsBelow(): boolean {
     return (
         (this.direction === "down" && !this.dockRequests.some((floor) => floor < this.currFloor)) ||
-        (this.direction === "up" && !this.upRequests.some((floor) => floor > this.currFloor))
+        (this.direction === "up" && !this.downRequests.some((floor) => floor < this.currFloor))
     );
 }
 
+
 private noRequestsAbove(): boolean {
-    return (
-        (this.direction === "up" && !this.dockRequests.some((floor) => floor > this.currFloor)) ||
-        (this.direction === "down" && !this.downRequests.some((floor) => floor < this.currFloor))
-    );
+  return (
+      (this.direction === "up" && !this.dockRequests.some((floor) => floor > this.currFloor)) ||
+      (this.direction === "down" && !this.upRequests.some((floor) => floor > this.currFloor))
+  );
 }
 
 private noUpAndDownRequests(): boolean {
@@ -217,6 +218,24 @@ private findClosestFloor(requests: number[]): number {
     if (!this.safetyCheck()) {
       return null;
     }
+  
+
+  
+    // Check for any upRequests higher than the current floor
+    if (this.direction === Direction.Up && this.upRequests.some((floor) => floor > this.currFloor)) {
+      console.log("Changing direction to Down");
+      this.direction = Direction.Up;
+      this.moveFloor();
+      return;
+    }
+  
+    // Check for any downRequests lower than the current floor
+    if (this.direction === Direction.Down && this.downRequests.some((floor) => floor < this.currFloor)) {
+      console.log("Changing direction to Up");
+      this.direction = Direction.Down;
+      this.moveFloor();
+      return;
+    }
 
     if (
       (this.direction === Direction.Down && this.dockRequests.some((floor) => floor < this.currFloor)) ||
@@ -225,13 +244,15 @@ private findClosestFloor(requests: number[]): number {
       this.moveFloor();
       return;
     }
-
+  
     if (this.direction === Direction.Down && this.noRequestsBelow()) {
+      console.log("Changing direction to Up");
       this.direction = Direction.Up;
     } else if (this.direction === Direction.Up && this.noRequestsAbove()) {
+      console.log("Changing direction to Down");
       this.direction = Direction.Down;
     }
-
+  
     if (this.dockRequests.length === 0 && this.noUpAndDownRequests()) {
       if (this.currFloor > 0) {
         this.direction = Direction.Down;
