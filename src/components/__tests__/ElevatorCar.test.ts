@@ -1,5 +1,5 @@
 import ElevatorCar, { ElevatorState } from "../ElevatorCar";
-
+import { Direction } from "../../enums/Direction";
 jest.useFakeTimers(); // Enable fake timers
 
 describe("ElevatorCar", () => {
@@ -16,7 +16,7 @@ describe("ElevatorCar", () => {
       travelTime: 0,
       floorsStoppedAt: [],
       totalFloors: 0,
-      direction: "up",
+      direction: Direction.Up,
       currFloor: 1,
       doorOpen: false,
       dockRequests: [],
@@ -36,8 +36,8 @@ describe("ElevatorCar", () => {
         totalFloors: 10,
         currFloor: 0,
         dockRequests: [1, 2, 3],
-        upRequests: [1,2,3,4,5,6,7,8,9,10],
-        downRequests: [1,2,3,4,5,6,7,8,9,10]
+        upRequests: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        downRequests: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       };
 
       // Spy on the routeCheck method
@@ -51,7 +51,7 @@ describe("ElevatorCar", () => {
 
       // Then
       // Check if 'direction' is set to 'up'
-      expect(elevatorCar.direction).toBe("up");
+      expect(elevatorCar.direction).toBe(Direction.Up);
 
       // Check if routeCheck is called
       expect(spyMoveFloor).toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
 
       // Then
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
 
       expect(spyMoveFloor).toHaveBeenCalled();
     });
@@ -99,7 +99,7 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
 
       // Then
-      expect(elevatorCar.direction).toBe("up");
+      expect(elevatorCar.direction).toBe(Direction.Up);
 
       expect(spyMoveFloor).toHaveBeenCalled();
     });
@@ -125,7 +125,7 @@ describe("ElevatorCar", () => {
       elevatorCar.wakeUpElevator();
 
       // Then
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
 
       expect(spyMoveFloor).toHaveBeenCalled();
     });
@@ -157,7 +157,7 @@ describe("ElevatorCar", () => {
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
     });
 
     test("no dockRequsts, more higher upRequests: 'direction' set to 'up'", () => {
@@ -187,7 +187,7 @@ describe("ElevatorCar", () => {
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
-      expect(elevatorCar.direction).toBe("up");
+      expect(elevatorCar.direction).toBe(Direction.Up);
     });
 
     test("no dockRequsts, more lower downRequests: 'direction' set to 'down'", () => {
@@ -217,7 +217,7 @@ describe("ElevatorCar", () => {
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
     });
 
     test("no dockRequsts, equal up and down requests: 'direction' set to 'down'", () => {
@@ -236,8 +236,6 @@ describe("ElevatorCar", () => {
       const spyHandleNonDockRequests = jest.spyOn(elevatorCar, 'handleNonDockRequests');
       const spyChooseDirectionBasedOnClosestFloors = jest.spyOn(elevatorCar, 'chooseDirectionBasedOnClosestFloors');
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
-
-
     
       // When
       elevatorCar.wakeUpElevator();
@@ -255,7 +253,7 @@ describe("ElevatorCar", () => {
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
     });
 
     test("no requests: 'direction' set to 'down'", () => {
@@ -274,8 +272,6 @@ describe("ElevatorCar", () => {
       const spyHandleNonDockRequests = jest.spyOn(elevatorCar, 'handleNonDockRequests');
       const spyChooseDirectionBasedOnClosestFloors = jest.spyOn(elevatorCar, 'chooseDirectionBasedOnClosestFloors');
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
-
-
     
       // When
       elevatorCar.wakeUpElevator();
@@ -293,7 +289,7 @@ describe("ElevatorCar", () => {
       // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
-      expect(elevatorCar.direction).toBe("down");
+      expect(elevatorCar.direction).toBe(Direction.Down);
     });
   });
 

@@ -2,6 +2,9 @@ module.exports = {
   rootDir: __dirname, // Automatically sets the root directory to the directory of jest.config.js
   preset: "ts-jest",
   testEnvironment: "node",
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/src/$1"
+  },
   roots: [
       "<rootDir>/src"
   ],

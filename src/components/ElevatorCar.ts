@@ -1,3 +1,5 @@
+import { Direction } from "src/enums/Direction";
+
 export interface ElevatorState {
   emergencyStop: boolean;
   fireMode: boolean;
@@ -7,7 +9,7 @@ export interface ElevatorState {
   travelTime: number;
   floorsStoppedAt: number[];
   totalFloors: number;
-  direction: string;
+  direction: Direction;
   currFloor: number;
   doorOpen: boolean;
   dockRequests: number[];
@@ -28,7 +30,7 @@ export default class ElevatorCar {
   floorsStoppedAt!: number[];
 
   totalFloors!: number;
-  direction!: string;
+  direction: Direction = Direction.None;
   currFloor!: number;
   doorOpen!: boolean;
   dockRequests!: number[];
@@ -135,10 +137,10 @@ handleDockRequests(): void {
   console.log(`upDockRequests: ${upDockRequests}, downDockRequests: ${downDockRequests}`);
 
   this.direction = upDockRequests > downDockRequests
-      ? "up"
-      : downDockRequests > upDockRequests
-          ? "down"
-          : this.chooseDirectionBasedOnClosestFloors();
+    ? Direction.Up
+    : downDockRequests > upDockRequests
+      ? Direction.Down
+      : this.chooseDirectionBasedOnClosestFloors();
 }
 
 handleNonDockRequests(): void {
@@ -148,13 +150,13 @@ handleNonDockRequests(): void {
   console.log(`totalUpRequests: ${totalUpRequests}, totalDownRequests: ${totalDownRequests}`);
 
   if (totalUpRequests === totalDownRequests) {
-      this.direction = this.chooseDirectionBasedOnClosestFloors();
+    this.direction = this.chooseDirectionBasedOnClosestFloors();
   } else {
-      this.direction = totalUpRequests > totalDownRequests ? "up" : "down";
+    this.direction = totalUpRequests > totalDownRequests ? Direction.Up : Direction.Down;
   }
 }
 
-chooseDirectionBasedOnClosestFloors(): string {
+chooseDirectionBasedOnClosestFloors(): Direction {
   console.log("Choosing direction based on closest floors...");
 
   // Find the closest up and down floors
@@ -165,10 +167,10 @@ chooseDirectionBasedOnClosestFloors(): string {
 
   // If there are no requests, set direction to down
   if (this.upRequests.length === 0 && this.downRequests.length === 0) {
-      return "down";
+    return Direction.Down;
   }
 
-  // Calculate the differences between current floor and closest up/down floors
+  // Calculate the differences between the current floor and closest up/down floors
   const closestUpDiff = Math.abs(closestUpFloor - this.currFloor);
   const closestDownDiff = Math.abs(closestDownFloor - this.currFloor);
 
@@ -176,12 +178,12 @@ chooseDirectionBasedOnClosestFloors(): string {
 
   // Determine the direction based on the minimum difference
   if (closestUpDiff < closestDownDiff) {
-      return "up";
+    return Direction.Up;
   } else if (closestDownDiff < closestUpDiff) {
-      return "down";
+    return Direction.Down;
   } else {
-      // If there is a tie or no requests, default to returning "down"
-      return "down";
+    // If there is a tie or no requests, default to returning "down"
+    return Direction.Down;
   }
 }
 
@@ -213,34 +215,32 @@ private findClosestFloor(requests: number[]): number {
 
   routeCheck(): void | null {
     if (!this.safetyCheck()) {
-        return null;
+      return null;
     }
 
     if (
-        (this.direction === "down" &&
-            this.dockRequests.some((floor) => floor < this.currFloor)) ||
-        (this.direction === "up" &&
-            this.dockRequests.some((floor) => floor > this.currFloor))
+      (this.direction === Direction.Down && this.dockRequests.some((floor) => floor < this.currFloor)) ||
+      (this.direction === Direction.Up && this.dockRequests.some((floor) => floor > this.currFloor))
     ) {
-        this.moveFloor();
-        return;
+      this.moveFloor();
+      return;
     }
 
-    if (this.direction === "down" && this.noRequestsBelow()) {
-        this.direction = "up";
-    } else if (this.direction === "up" && this.noRequestsAbove()) {
-        this.direction = "down";
+    if (this.direction === Direction.Down && this.noRequestsBelow()) {
+      this.direction = Direction.Up;
+    } else if (this.direction === Direction.Up && this.noRequestsAbove()) {
+      this.direction = Direction.Down;
     }
 
     if (this.dockRequests.length === 0 && this.noUpAndDownRequests()) {
-        if (this.currFloor > 0) {
-            this.direction = "down";
-            this.moveFloor();
-        } else {
-            this.rest();
-        }
+      if (this.currFloor > 0) {
+        this.direction = Direction.Down;
+        this.moveFloor();
+      } else {
+        this.rest();
+      }
     }
-}
+  }
 
   dock(): void {
     //TODO add a stop elevator method
