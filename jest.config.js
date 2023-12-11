@@ -1,15 +1,16 @@
 module.exports = {
-    preset: "ts-jest",
-    testEnvironment: "node",
-    roots: [
-        "<rootDir>/src"
-      ],
-      testMatch: [
-        "**/__tests__/**/*.ts?(x)",
-        "**/?(*.)+(spec|test).ts?(x)"
-      ],
-    transform: {
+  rootDir: __dirname, // Automatically sets the root directory to the directory of jest.config.js
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: [
+      "<rootDir>/src"
+  ],
+  testMatch: [
+      "**/__tests__/**/*.ts?(x)",
+      "**/?(*.)+(spec|test).ts?(x)"
+  ],
+  transform: {
       "^.+\\.tsx?$": "ts-jest"
-    },
-    moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"]
-  };
+  },
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
+};
