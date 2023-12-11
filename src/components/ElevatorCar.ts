@@ -25,10 +25,8 @@ export default class ElevatorCar {
   doorStuck!: boolean;
   maxWeight!: number;
   currWeight!: number;
-
   travelTime!: number;
   floorsStoppedAt!: number[];
-
   totalFloors!: number;
   direction: Direction = Direction.None;
   currFloor!: number;
@@ -80,6 +78,7 @@ export default class ElevatorCar {
       nap: this.nap,
     };
 
+    //NOTE - yes console logs are bad, but this is the MVP way of communicating the travelTime and floorStopped at.
     console.log("Elevator State:", elevatorState);
   }
 
@@ -87,17 +86,13 @@ export default class ElevatorCar {
     Object.assign(this, newState);
 }
 
-  wakeUpElevator(): void | null {
-    console.log("Elevator is waking up");
-  
+  wakeUpElevator(): void | null {  
+    //NOTE - the safety check should happen first. Ideally you only turn on an elevator once. If it is being turned on, there is a non-zero chance that it is recovering from a blackout or other emergency. Hence the safety check.
     if (!this.safetyCheck()) {
       return null;
     }
   
     this.removeRequestsEqualToCurrFloor();
-
-    console.log(`UP REQUESTS: ${this.upRequests}, DOWN REQUESTS: ${this.downRequests}`);
-
   
     if (this.dockRequests.length > 0) {
       this.handleDockRequests();
@@ -105,7 +100,6 @@ export default class ElevatorCar {
       this.handleNonDockRequests();
     }
   
-    console.log(`Initial Direction: ${this.direction}`);
     this.moveFloor();
   }
 
@@ -123,19 +117,10 @@ private noRequestsAbove(): boolean {
       (this.direction === "down" && !this.upRequests.some((floor) => floor > this.currFloor))
   );
 }
-
-private noUpAndDownRequests(): boolean {
-    const totalUpRequests = this.upRequests.filter((floor) => floor > this.currFloor).length;
-    const totalDownRequests = this.downRequests.filter((floor) => floor < this.currFloor).length;
-
-    return totalUpRequests === 0 && totalDownRequests === 0;
-}
   
 handleDockRequests(): void {
   const upDockRequests = this.countRequestsAbove(this.dockRequests);
   const downDockRequests = this.countRequestsBelow(this.dockRequests);
-
-  console.log(`upDockRequests: ${upDockRequests}, downDockRequests: ${downDockRequests}`);
 
   this.direction = upDockRequests > downDockRequests
     ? Direction.Up
@@ -148,8 +133,6 @@ handleNonDockRequests(): void {
   const totalUpRequests = this.countRequestsAbove(this.upRequests);
   const totalDownRequests = this.countRequestsBelow(this.downRequests);
 
-  console.log(`totalUpRequests: ${totalUpRequests}, totalDownRequests: ${totalDownRequests}`);
-
   if (totalUpRequests === totalDownRequests) {
     this.direction = this.chooseDirectionBasedOnClosestFloors();
   } else {
@@ -158,12 +141,8 @@ handleNonDockRequests(): void {
 }
 
 chooseDirectionBasedOnClosestFloors(): Direction {
-  console.log("Choosing direction based on closest floors...");
-
   const closestUpFloor = this.findClosestFloor(this.upRequests);
   const closestDownFloor = this.findClosestFloor(this.downRequests);
-
-  console.log(`closestUpFloor: ${closestUpFloor}, closestDownFloor: ${closestDownFloor}`);
 
   if (this.upRequests.length === 0 && this.downRequests.length === 0) {
     return Direction.Down;
@@ -171,8 +150,6 @@ chooseDirectionBasedOnClosestFloors(): Direction {
 
   const closestUpDiff = Math.abs(closestUpFloor - this.currFloor);
   const closestDownDiff = Math.abs(closestDownFloor - this.currFloor);
-
-  console.log(`closestUpDiff: ${closestUpDiff}, closestDownDiff: ${closestDownDiff}`);
 
   if (closestUpDiff < closestDownDiff) {
     return Direction.Up;
@@ -209,18 +186,17 @@ private findClosestFloor(requests: number[]): number {
     );
   }
 
-  async routeCheck(): Promise<void | null> { // Adjust return type
+  async routeCheck(): Promise<void | null> {
     if (!this.safetyCheck()) {
       return null;
     }
 
     if (this.noRequests()) {
-      this.logState(); // Call logState when noRequests is true
-      return null; // Return null to match the type
+      this.logState();
+      return null;
     }
 
     if (this.direction === Direction.Up && this.upRequests.some((floor) => floor > this.currFloor)) {
-      console.log("Changing direction to Down");
       this.direction = Direction.Up;
       this.moveFloor();
       this.logDone = false; 
@@ -228,7 +204,6 @@ private findClosestFloor(requests: number[]): number {
     }
 
     if (this.direction === Direction.Down && this.downRequests.some((floor) => floor < this.currFloor)) {
-      console.log("Changing direction to Up");
       this.direction = Direction.Down;
       this.moveFloor();
       this.logDone = false; 
@@ -245,13 +220,11 @@ private findClosestFloor(requests: number[]): number {
     }
 
     if (this.direction === Direction.Down && this.noRequestsBelow()) {
-      console.log("Changing direction to Up");
       this.direction = Direction.Up;
       this.moveFloor();
       this.logDone = false; 
       return null;
     } else if (this.direction === Direction.Up && this.noRequestsAbove()) {
-      console.log("Changing direction to Down");
       this.direction = Direction.Down;
       this.moveFloor();
       this.logDone = false; 
@@ -259,14 +232,17 @@ private findClosestFloor(requests: number[]): number {
     }
 
     if (this.noRequests()) {
-      // this.rest(); // Comment out the rest() method
+      // this.rest(); // Was in the middle of implementing the rest() method
     }
 
-    return null; // Add a return statement to match the type
+    return null;
   }
 
 
   dock(): void {
+    //NOTE - This is a little silly as is. Ideally you would have a system or switch that would physically verify that the elevator has stopped, 
+    // another one to verify that the door has opened successfully, and another one to verify that the door has closed successfully before
+    //moving the elevator. This is because it is VERY IMPORTANT to make sure the elevator doors are fully closed before moving it
     //TODO add a stop elevator method
     //TODO add a door opening method
     this.removeRequestsEqualToCurrFloor();
@@ -373,21 +349,19 @@ private findClosestFloor(requests: number[]): number {
 
 
   safetyCheck(): boolean {
+    //NOTE ideally this should run asynchrously constantly and interrupt all other elevator functions at a moments notice
     if (this.emergencyStop) {
       this.invokeEmergencyStop();
-      console.log(`EMERGENCY STOP`);
       return false;
     }
 
     if (this.fireMode) {
       this.fireStop();
-      console.log(`FIRE MODE ACTIVATED`);
       return false;
     }
 
     if (this.doorStuck) {
       this.doorCheck();
-      console.log(`DOOR CHECK FAILED`);
       return false;
     } else {
       return true;
@@ -395,18 +369,23 @@ private findClosestFloor(requests: number[]): number {
   }
 
   invokeEmergencyStop(): void {
-    // Implement emergency stop
+    //NOTE - if someone hits the emergecy stop, the elevator should ignore all request logic and immediately stop the elevator at the nearest floor.
+    //TODO -  Implement emergency stop
   }
 
   fireStop(): void {
-    // Implement fire stop
+    //NOTE - If the fire key is inserted, the elevator should ignore all other requests and go to the floor the fireman has requested
+    //TODO -  Implement fire stop
   }
 
   weightStop(): void {
-    // Implement weight stop
+    //NOTE - if the weight is exceeded, if the elevator is stopped it should stay stopped and activate an alarm notification until the weight is acceptable
+    //TODO -  Implement weight stop
   }
 
   doorCheck(): void {
-    // Implement door check
+    //NOTE - The door closing should be an operation. If the door begins to close but runs into something, it should reverse course.
+    // if this happens a certain number of times it should activate an alarm
+    //TODO -  Implement door check
   }
 }
