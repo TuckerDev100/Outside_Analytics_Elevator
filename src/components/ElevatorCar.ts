@@ -52,7 +52,7 @@ export default class ElevatorCar {
       direction: state.direction,
       currFloor: state.currFloor,
       doorOpen: state.doorOpen,
-      dockRequests: state.dockRequests,
+      dockRequests: state.dockRequests || [],
       upRequests: state.upRequests,
       downRequests: state.downRequests,
       logDone: state.logDone,
@@ -160,30 +160,25 @@ handleNonDockRequests(): void {
 chooseDirectionBasedOnClosestFloors(): Direction {
   console.log("Choosing direction based on closest floors...");
 
-  // Find the closest up and down floors
   const closestUpFloor = this.findClosestFloor(this.upRequests);
   const closestDownFloor = this.findClosestFloor(this.downRequests);
 
   console.log(`closestUpFloor: ${closestUpFloor}, closestDownFloor: ${closestDownFloor}`);
 
-  // If there are no requests, set direction to down
   if (this.upRequests.length === 0 && this.downRequests.length === 0) {
     return Direction.Down;
   }
 
-  // Calculate the differences between the current floor and closest up/down floors
   const closestUpDiff = Math.abs(closestUpFloor - this.currFloor);
   const closestDownDiff = Math.abs(closestDownFloor - this.currFloor);
 
   console.log(`closestUpDiff: ${closestUpDiff}, closestDownDiff: ${closestDownDiff}`);
 
-  // Determine the direction based on the minimum difference
   if (closestUpDiff < closestDownDiff) {
     return Direction.Up;
   } else if (closestDownDiff < closestUpDiff) {
     return Direction.Down;
   } else {
-    // If there is a tie or no requests, default to returning "down"
     return Direction.Down;
   }
 }
@@ -214,27 +209,30 @@ private findClosestFloor(requests: number[]): number {
     );
   }
 
-  routeCheck(): void | null {
+  async routeCheck(): Promise<void | null> { // Adjust return type
     if (!this.safetyCheck()) {
       return null;
     }
-  
 
-  
-    // Check for any upRequests higher than the current floor
+    if (this.noRequests()) {
+      this.logState(); // Call logState when noRequests is true
+      return null; // Return null to match the type
+    }
+
     if (this.direction === Direction.Up && this.upRequests.some((floor) => floor > this.currFloor)) {
       console.log("Changing direction to Down");
       this.direction = Direction.Up;
       this.moveFloor();
-      return;
+      this.logDone = false; 
+      return null;
     }
-  
-    // Check for any downRequests lower than the current floor
+
     if (this.direction === Direction.Down && this.downRequests.some((floor) => floor < this.currFloor)) {
       console.log("Changing direction to Up");
       this.direction = Direction.Down;
       this.moveFloor();
-      return;
+      this.logDone = false; 
+      return null;
     }
 
     if (
@@ -242,26 +240,31 @@ private findClosestFloor(requests: number[]): number {
       (this.direction === Direction.Up && this.dockRequests.some((floor) => floor > this.currFloor))
     ) {
       this.moveFloor();
-      return;
+      this.logDone = false; 
+      return null;
     }
-  
+
     if (this.direction === Direction.Down && this.noRequestsBelow()) {
       console.log("Changing direction to Up");
       this.direction = Direction.Up;
+      this.moveFloor();
+      this.logDone = false; 
+      return null;
     } else if (this.direction === Direction.Up && this.noRequestsAbove()) {
       console.log("Changing direction to Down");
       this.direction = Direction.Down;
+      this.moveFloor();
+      this.logDone = false; 
+      return null;
     }
-  
-    if (this.dockRequests.length === 0 && this.noUpAndDownRequests()) {
-      if (this.currFloor > 0) {
-        this.direction = Direction.Down;
-        this.moveFloor();
-      } else {
-        this.rest();
-      }
+
+    if (this.noRequests()) {
+      // this.rest(); // Comment out the rest() method
     }
+
+    return null; // Add a return statement to match the type
   }
+
 
   dock(): void {
     //TODO add a stop elevator method
@@ -311,10 +314,8 @@ private findClosestFloor(requests: number[]): number {
     if (this.logDone && this.currFloor > 0) {
       this.currFloor--;
     } else if (this.direction === "up" && this.currFloor < this.totalFloors) {
-      // Move up one floor if not already at the top floor
       this.currFloor++;
     } else if (this.direction === "down" && this.currFloor > 0) {
-      // Move down one floor if not already at the ground floor
       this.currFloor--;
     }
 
@@ -324,44 +325,52 @@ private findClosestFloor(requests: number[]): number {
   }
 
   async rest(): Promise<void> {
-    if (this.currFloor === 0 && !this.nap) {
-      this.logState();
-      this.nap = true; // Set nap to true to prevent further logState calls until new requests arrive
+    if (this.currFloor === 0 && !this.nap && this.noRequests()) {
+      if (!this.logDone) {
+        this.logState();
+        this.logDone = true;
+      }
+
+      this.nap = true;
     }
 
     await this.waitForRequestsOrTimeout();
 
-    if (
-      this.dockRequests.length > 0 ||
-      this.upRequests.length > 0 ||
-      this.downRequests.length > 0
-    ) {
-      // Reset nap when there are new requests
+    if (this.noRequests()) {
       this.nap = false;
+      this.logDone = false; 
+      this.direction = Direction.Down; 
+      this.routeCheck(); 
     }
 
-    if (this.currFloor === 0) {
+    if (this.currFloor === 0 && this.noRequests()) {
       this.routeCheck();
     }
   }
 
   async waitForRequestsOrTimeout(): Promise<void> {
-    const delayInSeconds = 5;
+    const delayInSeconds = 10;
     const startTime = new Date().getTime();
 
     while (new Date().getTime() - startTime < delayInSeconds * 1000) {
-      if (
-        this.dockRequests.length > 0 ||
-        this.upRequests.length > 0 ||
-        this.downRequests.length > 0
-      ) {
+      if (this.noRequests()) {
         return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 100)); // Adjust the delay as needed
+      await new Promise((resolve) => setTimeout(resolve, 100)); 
     }
 
     this.routeCheck();
   }
+
+
+  noRequests(): boolean {
+    return (
+      this.dockRequests.length === 0 &&
+      this.upRequests.length === 0 &&
+      this.downRequests.length === 0
+    );
+  }
+
 
   safetyCheck(): boolean {
     if (this.emergencyStop) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ElevatorCar from './components/ElevatorCar.ts';
+import './App.css';
 
 function App() {
   const [elevatorConfig, setElevatorConfig] = useState({
@@ -19,20 +20,15 @@ function App() {
   const promptForElevatorInfo = async () => {
     console.log('Please enter elevator information:');
 
-    // Ask for totalFloors
     const totalFloorsInput = await askForInput('How many floors in the building?', 'totalFloors');
 
-    // Ask for currFloor
     const currFloorInput = await askForInput('What floor is the elevator currently on?', 'currFloor');
 
-    // Ask for dockRequests
     const dockRequestsInput = await askForInput('What floors need to be visited? (comma-separated)', 'dockRequests');
 
-    // Map string input to integers
-
+    
     const dockRequestsArray = dockRequestsInput.dockRequests.split(',').map((floor) => parseInt(floor.trim(), 10));
 
-    // Create ElevatorCar instance when all inputs are collected
     const newElevatorInstance = new ElevatorCar({
       ...totalFloorsInput,
       ...currFloorInput,
@@ -53,17 +49,16 @@ function App() {
       nap: false
     });
 
-    // Set the instance to state
     setElevatorInstance(newElevatorInstance);
 
-    // Invoke wakeUpElevator on the created instance
     newElevatorInstance.wakeUpElevator();
   };
 
   return (
-    <div>
+    <div  className="centered-container">
       <h1>Elevator Simulator</h1>
       <button onClick={promptForElevatorInfo}>Enter Elevator Information</button>
+      <p>Press F12 to see output</p>
     </div>
   );
 }

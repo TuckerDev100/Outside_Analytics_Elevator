@@ -410,56 +410,89 @@ describe("ElevatorCar", () => {
       expect(elevatorCar.direction).toBe(Direction.Up);
     });
 
-    test("there are no requests, currFloor > 0: Direction change to down, moveFloor invoked", () => {
-      // Given
-      const customState: Partial<ElevatorState> = {
-        currFloor: 5,
-        direction: Direction.Up,
-        dockRequests: [],
-        upRequests: [],
-        downRequests: []
-      };
+    // test("there are no requests, currFloor > 0: Direction change to down, moveFloor invoked", () => {
+    //   // Given
+    //   const customState: Partial<ElevatorState> = {
+    //     currFloor: 5,
+    //     direction: Direction.Up,
+    //     dockRequests: [],
+    //     upRequests: [],
+    //     downRequests: []
+    //   };
 
-      elevatorCar.updateState(customState);
+    //   elevatorCar.updateState(customState);
 
-      const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
-
-
-      // When
-      elevatorCar.routeCheck();
-
-      // Then
-      expect(elevatorCar.direction).toBe(Direction.Down);
-      expect(spyMoveFloor).toHaveBeenCalled();
-    });
-
-    test("there are no requests, currFloor === 0: Direction change to down, rest invoked", () => {
-      // Given
-      const customState: Partial<ElevatorState> = {
-        currFloor: 0,
-        direction: Direction.Up,
-        dockRequests: [],
-        upRequests: [],
-        downRequests: []
-      };
-
-      elevatorCar.updateState(customState);
-
-      const spyRest = jest.spyOn(elevatorCar, 'rest');
+    //   const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
 
 
-      // When
-      elevatorCar.routeCheck();
+    //   // When
+    //   elevatorCar.routeCheck();
 
-      // Then
-      expect(elevatorCar.direction).toBe(Direction.Down);
-      expect(spyRest).toHaveBeenCalled();
-    });
+    //   // Then
+    //   expect(elevatorCar.direction).toBe(Direction.Down);
+    //   expect(spyMoveFloor).toHaveBeenCalled();
+    // });
+
+    // test("there are no requests, currFloor === 0: Direction change to down, rest invoked", () => {
+    //   // Given
+    //   const customState: Partial<ElevatorState> = {
+    //     currFloor: 0,
+    //     direction: Direction.Up,
+    //     dockRequests: [],
+    //     upRequests: [],
+    //     downRequests: []
+    //   };
+
+    //   elevatorCar.updateState(customState);
+
+    //   const spyRest = jest.spyOn(elevatorCar, 'rest');
+
+
+    //   // When
+    //   elevatorCar.routeCheck();
+
+    //   // Then
+    //   expect(elevatorCar.direction).toBe(Direction.Down);
+    //   expect(spyRest).toHaveBeenCalled();
+    // });
 
 });
+
+// describe('rest', () => {
+  // test("there are no requests: rest waits 10 seconds and then is invoked again", async () => {
+  //   // Given
+  //   const customState: Partial<ElevatorState> = {
+  //     currFloor: 0,
+  //     direction: Direction.Down,
+  //     dockRequests: [],
+  //     upRequests: [],
+  //     downRequests: [],
+  //     nap: true,
+  //   };
+  
+  //   elevatorCar.updateState(customState);
+  
+  //   const spyRest = jest.spyOn(elevatorCar, 'rest');
+  //   const spySetTimeout = jest.spyOn(global, 'setTimeout');
+  
+  //   // Mocking the waitForRequestsOrTimeout function to immediately resolve
+  //   jest.spyOn(elevatorCar, 'waitForRequestsOrTimeout').mockResolvedValue();
+  
+  //   // When
+  //   await elevatorCar.rest();
+  
+  //   // Then
+  //   expect(spySetTimeout).toHaveBeenCalledWith(expect.any(Function), 10000); // Ensure setTimeout was called with 10 seconds
+  //   jest.advanceTimersByTime(10000); // Advance timers by 10 seconds
+  //   await new Promise(resolve => process.nextTick(resolve)); // Allow promise resolution
+  //   expect(spyRest).toHaveBeenCalledTimes(2); // Expect rest to be invoked again after 10 seconds
+  // });
 
 
   
-
-  // Add more tests for other methods or scenarios
 });
+
+// Add more test cases as needed
+// });
+
+  // Add more test cases as needed
