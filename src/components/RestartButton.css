@@ -1,0 +1,19 @@
+/* RestartButton.css */
+.restart-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background-color: red;
+    color: white;
+    padding: 2px 8px;  /* Adjust padding for the content inside */
+    width: 60px;  /* Set a fixed width */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  
+  .restart-button:hover {
+    background-color: darkred;
+  }
+  
