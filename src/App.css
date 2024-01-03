@@ -37,10 +37,21 @@
   }
 }
 
+.app-container {
+  text-align: center;
+}
+
 .centered-container {
+  margin: 0 auto;
+  max-width: 800px; /* Adjust the value as needed */
+  text-align: left; /* Adjust as needed, you might set it to center for the initial form */
+}
+
+.columns-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh; /* Set the height to 100% of the viewport height */
+  justify-content: space-between;
+}
+
+.column {
+  width: 30%; /* Adjust the value as needed */
 }

@@ -1,0 +1,15 @@
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center; /* Update this line to center the content horizontally */
+  align-items: center;
+  border: 1px solid black;
+}
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: black; /* Change text color to black */
+}

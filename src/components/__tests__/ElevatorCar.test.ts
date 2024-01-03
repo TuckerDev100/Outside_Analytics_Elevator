@@ -71,7 +71,6 @@ describe("ElevatorCar", () => {
 
       // Then
       expect(elevatorCar.direction).toBe(Direction.Down);
-
       expect(spyMoveFloor).toHaveBeenCalled();
     });
 
@@ -86,8 +85,6 @@ describe("ElevatorCar", () => {
       };
 
       elevatorCar.updateState(customState);
-
-
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
 
       // When
@@ -95,7 +92,6 @@ describe("ElevatorCar", () => {
 
       // Then
       expect(elevatorCar.direction).toBe(Direction.Up);
-
       expect(spyMoveFloor).toHaveBeenCalled();
     });
 
@@ -111,17 +107,14 @@ describe("ElevatorCar", () => {
 
       elevatorCar.updateState(customState);
 
-
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
       const spyRemoveRequestsEqualToCurrFloor = jest.spyOn(elevatorCar, 'removeRequestsEqualToCurrFloor');
-
 
       // When
       elevatorCar.wakeUpElevator();
 
       // Then
       expect(elevatorCar.direction).toBe(Direction.Down);
-
       expect(spyMoveFloor).toHaveBeenCalled();
     });
 
@@ -176,8 +169,6 @@ describe("ElevatorCar", () => {
       expect(elevatorCar.dockRequests).toEqual([]);
       expect(elevatorCar.upRequests).toEqual([1, 2, 4, 5, 6, 7, 8, 9]);
       expect(elevatorCar.downRequests).toEqual([2, 4, 5, 6, 7, 8, 9, 10]);
-    
-      // Ensure that routeCheck is called
       expect(spyRemoveRequestsEqualToCurrFloor).toHaveBeenCalled();
       expect(spyMoveFloor).toHaveBeenCalled();
       expect(elevatorCar.direction).toBe(Direction.Up);
@@ -290,7 +281,6 @@ describe("ElevatorCar", () => {
       };
 
       elevatorCar.updateState(customState);
-
       const spyMoveFloor = jest.spyOn(elevatorCar, 'moveFloor');
 
       // When
@@ -482,7 +472,7 @@ describe("ElevatorCar", () => {
   //   await elevatorCar.rest();
   
   //   // Then
-  //   expect(spySetTimeout).toHaveBeenCalledWith(expect.any(Function), 10000); // Ensure setTimeout was called with 10 seconds
+  //   expect(spySetTimeout).toHaveBeenCalledWith(expect.any(Function), 10000);
   //   jest.advanceTimersByTime(10000); // Advance timers by 10 seconds
   //   await new Promise(resolve => process.nextTick(resolve)); // Allow promise resolution
   //   expect(spyRest).toHaveBeenCalledTimes(2); // Expect rest to be invoked again after 10 seconds
@@ -492,7 +482,5 @@ describe("ElevatorCar", () => {
   
 });
 
-// Add more test cases as needed
 // });
 
-  // Add more test cases as needed

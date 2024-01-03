@@ -25,10 +25,8 @@ export default class ElevatorCar {
   doorStuck!: boolean;
   maxWeight!: number;
   currWeight!: number;
-
   travelTime!: number;
   floorsStoppedAt!: number[];
-
   totalFloors!: number;
   direction: Direction = Direction.None;
   currFloor!: number;
@@ -60,6 +58,10 @@ export default class ElevatorCar {
     });
   }
 
+  updateState(newState: Partial<ElevatorState>): void {
+    Object.assign(this, newState);
+  }
+
   public logState(): void {
     const elevatorState: ElevatorState = {
       emergencyStop: this.emergencyStop,
@@ -83,119 +85,89 @@ export default class ElevatorCar {
     console.log("Elevator State:", elevatorState);
   }
 
-  updateState(newState: Partial<ElevatorState>): void {
-    Object.assign(this, newState);
-}
-
   wakeUpElevator(): void | null {
-    console.log("Elevator is waking up");
-  
     if (!this.safetyCheck()) {
       return null;
     }
-  
+
     this.removeRequestsEqualToCurrFloor();
 
-    console.log(`UP REQUESTS: ${this.upRequests}, DOWN REQUESTS: ${this.downRequests}`);
-
-  
     if (this.dockRequests.length > 0) {
       this.handleDockRequests();
     } else {
       this.handleNonDockRequests();
     }
-  
-    console.log(`Initial Direction: ${this.direction}`);
+
     this.moveFloor();
   }
 
   private noRequestsBelow(): boolean {
     return (
-        (this.direction === "down" && !this.dockRequests.some((floor) => floor < this.currFloor)) ||
-        (this.direction === "up" && !this.downRequests.some((floor) => floor < this.currFloor))
+      (this.direction === "down" && !this.dockRequests.some((floor) => floor < this.currFloor)) ||
+      (this.direction === "up" && !this.downRequests.some((floor) => floor < this.currFloor))
     );
-}
+  }
 
-
-private noRequestsAbove(): boolean {
-  return (
+  private noRequestsAbove(): boolean {
+    return (
       (this.direction === "up" && !this.dockRequests.some((floor) => floor > this.currFloor)) ||
       (this.direction === "down" && !this.upRequests.some((floor) => floor > this.currFloor))
-  );
-}
+    );
+  }
 
-private noUpAndDownRequests(): boolean {
-    const totalUpRequests = this.upRequests.filter((floor) => floor > this.currFloor).length;
-    const totalDownRequests = this.downRequests.filter((floor) => floor < this.currFloor).length;
+  handleDockRequests(): void {
+    const upDockRequests = this.countRequestsAbove(this.dockRequests);
+    const downDockRequests = this.countRequestsBelow(this.dockRequests);
 
-    return totalUpRequests === 0 && totalDownRequests === 0;
-}
-  
-handleDockRequests(): void {
-  const upDockRequests = this.countRequestsAbove(this.dockRequests);
-  const downDockRequests = this.countRequestsBelow(this.dockRequests);
-
-  console.log(`upDockRequests: ${upDockRequests}, downDockRequests: ${downDockRequests}`);
-
-  this.direction = upDockRequests > downDockRequests
-    ? Direction.Up
-    : downDockRequests > upDockRequests
+    this.direction = upDockRequests > downDockRequests
+      ? Direction.Up
+      : downDockRequests > upDockRequests
       ? Direction.Down
       : this.chooseDirectionBasedOnClosestFloors();
-}
-
-handleNonDockRequests(): void {
-  const totalUpRequests = this.countRequestsAbove(this.upRequests);
-  const totalDownRequests = this.countRequestsBelow(this.downRequests);
-
-  console.log(`totalUpRequests: ${totalUpRequests}, totalDownRequests: ${totalDownRequests}`);
-
-  if (totalUpRequests === totalDownRequests) {
-    this.direction = this.chooseDirectionBasedOnClosestFloors();
-  } else {
-    this.direction = totalUpRequests > totalDownRequests ? Direction.Up : Direction.Down;
-  }
-}
-
-chooseDirectionBasedOnClosestFloors(): Direction {
-  console.log("Choosing direction based on closest floors...");
-
-  const closestUpFloor = this.findClosestFloor(this.upRequests);
-  const closestDownFloor = this.findClosestFloor(this.downRequests);
-
-  console.log(`closestUpFloor: ${closestUpFloor}, closestDownFloor: ${closestDownFloor}`);
-
-  if (this.upRequests.length === 0 && this.downRequests.length === 0) {
-    return Direction.Down;
   }
 
-  const closestUpDiff = Math.abs(closestUpFloor - this.currFloor);
-  const closestDownDiff = Math.abs(closestDownFloor - this.currFloor);
+  handleNonDockRequests(): void {
+    const totalUpRequests = this.countRequestsAbove(this.upRequests);
+    const totalDownRequests = this.countRequestsBelow(this.downRequests);
 
-  console.log(`closestUpDiff: ${closestUpDiff}, closestDownDiff: ${closestDownDiff}`);
-
-  if (closestUpDiff < closestDownDiff) {
-    return Direction.Up;
-  } else if (closestDownDiff < closestUpDiff) {
-    return Direction.Down;
-  } else {
-    return Direction.Down;
+    if (totalUpRequests === totalDownRequests) {
+      this.direction = this.chooseDirectionBasedOnClosestFloors();
+    } else {
+      this.direction = totalUpRequests > totalDownRequests ? Direction.Up : Direction.Down;
+    }
   }
-}
 
-private countRequestsAbove(requests: number[]): number {
-  return requests.filter(floor => floor > this.currFloor).length;
-}
+  chooseDirectionBasedOnClosestFloors(): Direction {
+    const closestUpFloor = this.findClosestFloor(this.upRequests);
+    const closestDownFloor = this.findClosestFloor(this.downRequests);
 
-private countRequestsBelow(requests: number[]): number {
-  return requests.filter(floor => floor < this.currFloor).length;
-}
+    if (this.upRequests.length === 0 && this.downRequests.length === 0) {
+      return Direction.Down;
+    }
 
-private findClosestFloor(requests: number[]): number {
-  return requests.length > 0 ? Math.min(...requests) : this.totalFloors;
-}
-  
-  
+    const closestUpDiff = Math.abs(closestUpFloor - this.currFloor);
+    const closestDownDiff = Math.abs(closestDownFloor - this.currFloor);
+
+    if (closestUpDiff < closestDownDiff) {
+      return Direction.Up;
+    } else if (closestDownDiff < closestUpDiff) {
+      return Direction.Down;
+    } else {
+      return Direction.Down;
+    }
+  }
+
+  private countRequestsAbove(requests: number[]): number {
+    return requests.filter(floor => floor > this.currFloor).length;
+  }
+
+  private countRequestsBelow(requests: number[]): number {
+    return requests.filter(floor => floor < this.currFloor).length;
+  }
+
+  private findClosestFloor(requests: number[]): number {
+    return requests.length > 0 ? Math.min(...requests) : this.totalFloors;
+  }
 
   removeRequestsEqualToCurrFloor(): void {
     this.dockRequests = this.dockRequests.filter(
@@ -209,29 +181,27 @@ private findClosestFloor(requests: number[]): number {
     );
   }
 
-  async routeCheck(): Promise<void | null> { // Adjust return type
+  routeCheck(): void | null {
     if (!this.safetyCheck()) {
       return null;
     }
 
     if (this.noRequests()) {
-      this.logState(); // Call logState when noRequests is true
-      return null; // Return null to match the type
+      this.logState();
+      return null;
     }
 
     if (this.direction === Direction.Up && this.upRequests.some((floor) => floor > this.currFloor)) {
-      console.log("Changing direction to Down");
       this.direction = Direction.Up;
       this.moveFloor();
-      this.logDone = false; 
+      this.logDone = false;
       return null;
     }
 
     if (this.direction === Direction.Down && this.downRequests.some((floor) => floor < this.currFloor)) {
-      console.log("Changing direction to Up");
       this.direction = Direction.Down;
       this.moveFloor();
-      this.logDone = false; 
+      this.logDone = false;
       return null;
     }
 
@@ -240,33 +210,33 @@ private findClosestFloor(requests: number[]): number {
       (this.direction === Direction.Up && this.dockRequests.some((floor) => floor > this.currFloor))
     ) {
       this.moveFloor();
-      this.logDone = false; 
+      this.logDone = false;
       return null;
     }
 
     if (this.direction === Direction.Down && this.noRequestsBelow()) {
-      console.log("Changing direction to Up");
       this.direction = Direction.Up;
       this.moveFloor();
-      this.logDone = false; 
+      this.logDone = false;
       return null;
     } else if (this.direction === Direction.Up && this.noRequestsAbove()) {
-      console.log("Changing direction to Down");
       this.direction = Direction.Down;
       this.moveFloor();
-      this.logDone = false; 
+      this.logDone = false;
       return null;
     }
 
     if (this.noRequests()) {
-      // this.rest(); // Comment out the rest() method
+      // this.rest(); // Was in the middle of implementing the rest() method
     }
 
-    return null; // Add a return statement to match the type
+    return null;
   }
 
-
   dock(): void {
+    //NOTE - This is a little silly as is. Ideally, you would have a system or switch that would physically verify that the elevator has stopped,
+    // another one to verify that the door has opened successfully, and another one to verify that the door has closed successfully before
+    // moving the elevator. This is because it is VERY IMPORTANT to make sure the elevator doors are fully closed before moving it
     //TODO add a stop elevator method
     //TODO add a door opening method
     this.removeRequestsEqualToCurrFloor();
@@ -290,41 +260,60 @@ private findClosestFloor(requests: number[]): number {
     if (this.dockRequests.includes(this.currFloor)) {
       dockIfNeeded(this.currFloor);
     } else if (
-      this.direction === "up" &&
+      this.direction === Direction.Up &&
       this.upRequests.includes(this.currFloor)
     ) {
       dockIfNeeded(this.currFloor);
     } else if (
-      this.direction === "down" &&
+      this.direction === Direction.Down &&
       this.downRequests.includes(this.currFloor)
     ) {
       dockIfNeeded(this.currFloor);
     }
 
-    if (!dockPerformed) {
-      this.travelTime += 1;
-    }
-
-    setTimeout(() => {
-      this.routeCheck();
-    }, 0);
   }
-
+  
   moveFloor(): void {
-    if (this.logDone && this.currFloor > 0) {
-      this.currFloor--;
-    } else if (this.direction === "up" && this.currFloor < this.totalFloors) {
-      this.currFloor++;
-    } else if (this.direction === "down" && this.currFloor > 0) {
-      this.currFloor--;
-    }
-
-    setTimeout(() => {
-      this.dockCheck();
-    }, 0);
+    const processFloor = async (floor: number, isDocking: boolean): Promise<void> => {
+      const waitDuration = isDocking ? 5 : 1;
+  
+      this.currFloor = floor;
+      this.travelTime += waitDuration; // Increment travelTime based on waitDuration after moving
+  
+      if (isDocking) {
+        this.floorsStoppedAt.push(floor); // Record the floor where docking occurred
+        this.removeRequestsEqualToCurrFloor(); // Remove the dock request after docking
+      }
+  
+      await this.delay(waitDuration); // Simulate the delay between floors
+  
+      this.dockCheck(); // Moved dockCheck outside the setTimeout
+  
+      // Move to the next floor if not docking and there are still requests
+      if (!isDocking && !this.noRequests()) {
+        const nextFloor = this.direction === Direction.Up ? floor + 1 : floor - 1;
+        await processFloor(nextFloor, this.dockRequests.includes(nextFloor));
+      } else if (isDocking && this.dockRequests.length > 0) {
+        const nextDockFloor = this.dockRequests.shift()!; // Move to the next dock request
+        await processFloor(nextDockFloor, true);
+      }
+    };
+  
+    processFloor(this.currFloor, this.dockRequests.includes(this.currFloor)); // Start the floor movement
   }
+  
 
-  async rest(): Promise<void> {
+
+  private delay(seconds: number): Promise<void> {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, seconds * 1000);
+    });
+  }
+  
+
+  rest(): void | null {
     if (this.currFloor === 0 && !this.nap && this.noRequests()) {
       if (!this.logDone) {
         this.logState();
@@ -334,32 +323,16 @@ private findClosestFloor(requests: number[]): number {
       this.nap = true;
     }
 
-    await this.waitForRequestsOrTimeout();
-
     if (this.noRequests()) {
       this.nap = false;
-      this.logDone = false; 
-      this.direction = Direction.Down; 
-      this.routeCheck(); 
+      this.logDone = false;
+      this.direction = Direction.Down;
+      this.routeCheck();
     }
 
     if (this.currFloor === 0 && this.noRequests()) {
       this.routeCheck();
     }
-  }
-
-  async waitForRequestsOrTimeout(): Promise<void> {
-    const delayInSeconds = 10;
-    const startTime = new Date().getTime();
-
-    while (new Date().getTime() - startTime < delayInSeconds * 1000) {
-      if (this.noRequests()) {
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100)); 
-    }
-
-    this.routeCheck();
   }
 
 
@@ -371,23 +344,20 @@ private findClosestFloor(requests: number[]): number {
     );
   }
 
-
   safetyCheck(): boolean {
+    //NOTE ideally this should run asynchronously constantly and interrupt all other elevator functions at a moment's notice
     if (this.emergencyStop) {
       this.invokeEmergencyStop();
-      console.log(`EMERGENCY STOP`);
       return false;
     }
 
     if (this.fireMode) {
       this.fireStop();
-      console.log(`FIRE MODE ACTIVATED`);
       return false;
     }
 
     if (this.doorStuck) {
       this.doorCheck();
-      console.log(`DOOR CHECK FAILED`);
       return false;
     } else {
       return true;
@@ -395,18 +365,23 @@ private findClosestFloor(requests: number[]): number {
   }
 
   invokeEmergencyStop(): void {
-    // Implement emergency stop
+    //NOTE - if someone hits the emergecy stop, the elevator should ignore all request logic and immediately stop the elevator at the nearest floor.
+    //TODO -  Implement emergency stop
   }
 
   fireStop(): void {
-    // Implement fire stop
+    //NOTE - If the fire key is inserted, the elevator should ignore all other requests and go to the floor the fireman has requested
+    //TODO -  Implement fire stop
   }
 
   weightStop(): void {
-    // Implement weight stop
+    //NOTE - if the weight is exceeded, if the elevator is stopped it should stay stopped and activate an alarm notification until the weight is acceptable
+    //TODO -  Implement weight stop
   }
 
   doorCheck(): void {
-    // Implement door check
+    //NOTE - The door closing should be an operation. If the door begins to close but runs into something, it should reverse course.
+    // if this happens a certain number of times it should activate an alarm
+    //TODO -  Implement door check
   }
 }

@@ -1,38 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import ElevatorCar from './components/ElevatorCar.ts';
+// App.js
+import React, { useState } from 'react';
+import ElevatorCar from './components/ElevatorCar';
+import ElevatorForm from './components/ElevatorForm';
+import ElevatorModel from './components/ElevatorModel';
+import Header from './components/Header';
+import RestartButton from './components/RestartButton';
+import CarDisplay from './components/CarDisplay';
 import './App.css';
 
 function App() {
-  const [elevatorConfig, setElevatorConfig] = useState({
-    totalFloors: 0,
-    currFloor: 0,
-    dockRequests: [],
-  });
   const [elevatorInstance, setElevatorInstance] = useState(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [elevatorModelData, setElevatorModelData] = useState(null);
 
-  const askForInput = (question, property) => {
-    return new Promise((resolve) => {
-      const userInput = prompt(question);
-      resolve({ [property]: userInput });
-    });
-  };
-
-  const promptForElevatorInfo = async () => {
-    console.log('Please enter elevator information:');
-
-    const totalFloorsInput = await askForInput('How many floors in the building?', 'totalFloors');
-
-    const currFloorInput = await askForInput('What floor is the elevator currently on?', 'currFloor');
-
-    const dockRequestsInput = await askForInput('What floors need to be visited? (comma-separated)', 'dockRequests');
-
-    
-    const dockRequestsArray = dockRequestsInput.dockRequests.split(',').map((floor) => parseInt(floor.trim(), 10));
-
-    const newElevatorInstance = new ElevatorCar({
-      ...totalFloorsInput,
-      ...currFloorInput,
-      dockRequests: dockRequestsArray,
+  const createElevator = (totalFloors, currFloor, dockRequests) => {
+    return new ElevatorCar({
+      totalFloors,
+      currFloor,
+      dockRequests,
       emergencyStop: false,
       fireMode: false,
       doorStuck: false,
@@ -46,19 +31,50 @@ function App() {
       upRequests: [],
       downRequests: [],
       logDone: false,
-      nap: false
+      nap: false,
     });
+  };
 
+  const handleFormSubmit = (formData) => {
+    const newElevatorInstance = createElevator(formData.totalFloors, formData.currFloor, formData.dockRequests);
     setElevatorInstance(newElevatorInstance);
-
     newElevatorInstance.wakeUpElevator();
+    setFormSubmitted(true);
+  };
+
+  const handleModelSubmit = (formData) => {
+    // Handle form submission logic here
+    console.log('Form submitted with data:', formData);
+
+    // Set data for ElevatorModel
+    setElevatorModelData(formData);
   };
 
   return (
-    <div  className="centered-container">
-      <h1>Elevator Simulator</h1>
-      <button onClick={promptForElevatorInfo}>Enter Elevator Information</button>
-      <p>Press F12 to see output</p>
+    <div>
+      <RestartButton />
+      <div className="app-container">
+        <Header />
+        <div className="centered-container">
+          {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit} setElevatorModelData={setElevatorModelData} />}
+          {formSubmitted && (
+            <div className="columns-container">
+              <div className="column">
+                {/* This is the left column, reserve for the third component */}
+                {/* You can add your third component here in the future */}
+              </div>
+              <div className="column">
+                {/* This is the center column, displaying ElevatorModel */}
+                <ElevatorModel {...elevatorModelData} />
+              </div>
+              <div className="column">
+                {/* This is the right column, displaying CarDisplay */}
+                <CarDisplay elevatorInstance={elevatorInstance} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
