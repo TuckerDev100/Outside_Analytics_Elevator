@@ -283,14 +283,13 @@ export default class ElevatorCar {
       if (isDocking) {
         this.floorsStoppedAt.push(floor); // Record the floor where docking occurred
         this.removeRequestsEqualToCurrFloor(); // Remove the dock request after docking
+        this.dockCheck(); // Moved dockCheck outside the setTimeout
       }
   
       await this.delay(waitDuration); // Simulate the delay between floors
   
-      this.dockCheck(); // Moved dockCheck outside the setTimeout
-  
-      // Move to the next floor if not docking and there are still requests
-      if (!isDocking && !this.noRequests()) {
+      // Move to the next floor if there are still requests
+      if (!this.noRequests()) {
         const nextFloor = this.direction === Direction.Up ? floor + 1 : floor - 1;
         await processFloor(nextFloor, this.dockRequests.includes(nextFloor));
       } else if (isDocking && this.dockRequests.length > 0) {
@@ -299,8 +298,13 @@ export default class ElevatorCar {
       }
     };
   
-    processFloor(this.currFloor, this.dockRequests.includes(this.currFloor)); // Start the floor movement
+    // Start the floor movement
+    processFloor(this.currFloor, this.dockRequests.includes(this.currFloor));
   }
+  
+  
+  
+  
   
 
 

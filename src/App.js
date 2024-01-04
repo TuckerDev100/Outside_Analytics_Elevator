@@ -42,7 +42,7 @@ function App() {
     setFormSubmitted(true);
   };
 
-  const handleModelSubmit = (formData) => {
+    const handleModelSubmit = (formData) => {
     // Handle form submission logic here
     console.log('Form submitted with data:', formData);
 

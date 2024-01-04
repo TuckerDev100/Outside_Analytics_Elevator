@@ -1,18 +1,37 @@
 // ElevatorModel.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import './ElevatorModel.css'; // Import the CSS file
 
 const ElevatorModel = ({ totalFloors, currFloor, dockRequests }) => {
-  // Convert dockRequests to an array if it's not already
-  const dockRequestsArray = Array.isArray(dockRequests) ? dockRequests : dockRequests.split(',').map((floor) => parseInt(floor.trim(), 10));
+  const [floors, setFloors] = useState([]);
 
-  // Your ElevatorModel logic here using the props (totalFloors, currFloor, dockRequests)
+  useEffect(() => {
+    // Generate the floors with elevator position, reversed order
+    const generateFloors = () => {
+      const newFloors = Array.from({ length: totalFloors + 1 }, (_, index) => {
+        const isElevatorFloor = index === currFloor;
+        const reversedIndex = totalFloors - index; // Reverse the order
+        return { floorNumber: reversedIndex, isElevatorFloor };
+      });
+      setFloors(newFloors);
+    };
+
+    generateFloors();
+  }, [totalFloors, currFloor]);
+
   return (
     <div>
       <h2>Elevator Model</h2>
-      <p>Total Floors: {totalFloors}</p>
-      <p>Current Floor: {currFloor}</p>
-      <p>Dock Requests: {dockRequestsArray.join(', ')}</p>
-      {/* Add your rendering logic here */}
+      <div className="elevator-model-container">
+        <div className="elevator-model">
+          {floors.map((floor) => (
+            <div key={floor.floorNumber} className="floor">
+              <span className="floor-number">{floor.floorNumber}</span>
+              <span style={{ whiteSpace: 'pre' }}>{floor.isElevatorFloor ? '| X |' : '|   |'}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
