@@ -1,23 +1,39 @@
-// ElevatorModel.js
 import React, { useEffect, useState } from 'react';
-import './ElevatorModel.css'; // Import the CSS file
+import './ElevatorModel.css';
+import eventEmitter from './eventEmitter';
 
-const ElevatorModel = ({ totalFloors, currFloor, dockRequests }) => {
+const ElevatorModel = ({ elevatorInstance }) => {
+  const { totalFloors, currFloor } = elevatorInstance;
   const [floors, setFloors] = useState([]);
 
-  useEffect(() => {
-    // Generate the floors with elevator position, reversed order
-    const generateFloors = () => {
-      const newFloors = Array.from({ length: totalFloors + 1 }, (_, index) => {
-        const isElevatorFloor = index === currFloor;
-        const reversedIndex = totalFloors - index; // Reverse the order
-        return { floorNumber: reversedIndex, isElevatorFloor };
-      });
-      setFloors(newFloors);
-    };
+  const generateFloors = () => {
+    console.log('generateFloors invoked');
+    const newFloors = Array.from({ length: totalFloors + 1 }, (_, index) => {
+      const isElevatorFloor = index === totalFloors - currFloor;
+      const reversedIndex = totalFloors - index;
+      return { floorNumber: reversedIndex, isElevatorFloor };
+    });
+    setFloors(newFloors);
+  };
 
-    generateFloors();
+  useEffect(() => {
+    // Subscribe to changes and update when triggered
+    const updateElevatorModel = () => {
+      console.log('updateElevatorModel event received');
+      generateFloors();
+    };
+    eventEmitter.on('updateElevatorModel', updateElevatorModel);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      eventEmitter.off('updateElevatorModel', updateElevatorModel);
+    };
   }, [totalFloors, currFloor]);
+
+  useEffect(() => {
+    // Initial render
+    generateFloors();
+  }, [totalFloors, currFloor]); // Run only when totalFloors or currFloor changes
 
   return (
     <div>

@@ -11,7 +11,6 @@ import './App.css';
 function App() {
   const [elevatorInstance, setElevatorInstance] = useState(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [elevatorModelData, setElevatorModelData] = useState(null);
 
   const createElevator = (totalFloors, currFloor, dockRequests) => {
     return new ElevatorCar({
@@ -42,13 +41,7 @@ function App() {
     setFormSubmitted(true);
   };
 
-    const handleModelSubmit = (formData) => {
-    // Handle form submission logic here
-    console.log('Form submitted with data:', formData);
 
-    // Set data for ElevatorModel
-    setElevatorModelData(formData);
-  };
 
   return (
     <div>
@@ -56,7 +49,7 @@ function App() {
       <div className="app-container">
         <Header />
         <div className="centered-container">
-          {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit} setElevatorModelData={setElevatorModelData} />}
+          {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit}/>}
           {formSubmitted && (
             <div className="columns-container">
               <div className="column">
@@ -65,7 +58,7 @@ function App() {
               </div>
               <div className="column">
                 {/* This is the center column, displaying ElevatorModel */}
-                <ElevatorModel {...elevatorModelData} />
+                <ElevatorModel elevatorInstance={elevatorInstance} />
               </div>
               <div className="column">
                 {/* This is the right column, displaying CarDisplay */}

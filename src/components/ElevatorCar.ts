@@ -1,5 +1,5 @@
 import { Direction } from "src/enums/Direction";
-
+import eventEmitter from './eventEmitter';
 export interface ElevatorState {
   emergencyStop: boolean;
   fireMode: boolean;
@@ -20,22 +20,31 @@ export interface ElevatorState {
 }
 
 export default class ElevatorCar {
+
+  travelTime!: number;
+  floorsStoppedAt!: number[];
+
+  totalFloors!: number;
+  currFloor!: number;
+  dockRequests!: number[];
+
+  upRequests!: number[];
+  downRequests!: number[];
+
+  direction: Direction = Direction.None;
+  
+  doorOpen!: boolean;
+
+  logDone!: boolean;
+  nap!: boolean;
+
   emergencyStop!: boolean;
   fireMode!: boolean;
   doorStuck!: boolean;
   maxWeight!: number;
   currWeight!: number;
-  travelTime!: number;
-  floorsStoppedAt!: number[];
-  totalFloors!: number;
-  direction: Direction = Direction.None;
-  currFloor!: number;
-  doorOpen!: boolean;
-  dockRequests!: number[];
-  upRequests!: number[];
-  downRequests!: number[];
-  logDone!: boolean;
-  nap!: boolean;
+
+
 
   constructor(state: ElevatorState) {
     this.updateState({
@@ -85,6 +94,7 @@ export default class ElevatorCar {
     console.log("Elevator State:", elevatorState);
   }
 
+
   wakeUpElevator(): void | null {
     if (!this.safetyCheck()) {
       return null;
@@ -115,7 +125,7 @@ export default class ElevatorCar {
     );
   }
 
-  handleDockRequests(): void {
+  handleDockRequests(): void { // THIS SETS DIRECTION, IT DOES NOT HANDLE DOCKING AND IS POORLY NAMED.
     const upDockRequests = this.countRequestsAbove(this.dockRequests);
     const downDockRequests = this.countRequestsBelow(this.dockRequests);
 
@@ -126,7 +136,10 @@ export default class ElevatorCar {
       : this.chooseDirectionBasedOnClosestFloors();
   }
 
-  handleNonDockRequests(): void {
+  // MAYBE THESE TWO SHOULD BE COMBINED AND WEIGHTED TOGETHER? SHOULD THE PEOPLE IN THE ELEVATOR BE PRIORITIZED?
+  // HERE I SAY YES. IN ANOTHER PART OF THE CODE I SAY NO. MAKE A DECISION.
+
+  handleNonDockRequests(): void { // THIS SETS DIRECTION, IT DOES NOT HANDLE DOCKING AND IS POORLY NAMED.
     const totalUpRequests = this.countRequestsAbove(this.upRequests);
     const totalDownRequests = this.countRequestsBelow(this.downRequests);
 
@@ -137,7 +150,7 @@ export default class ElevatorCar {
     }
   }
 
-  chooseDirectionBasedOnClosestFloors(): Direction {
+  chooseDirectionBasedOnClosestFloors(): Direction { 
     const closestUpFloor = this.findClosestFloor(this.upRequests);
     const closestDownFloor = this.findClosestFloor(this.downRequests);
 
@@ -239,28 +252,29 @@ export default class ElevatorCar {
     // moving the elevator. This is because it is VERY IMPORTANT to make sure the elevator doors are fully closed before moving it
     //TODO add a stop elevator method
     //TODO add a door opening method
-    this.removeRequestsEqualToCurrFloor();
+    this.removeRequestsEqualToCurrFloor(); //TODO REDUNDANT?
     //TODO add a weight check method
-    //TODO add a door closing method
+    //TODO add a door closing method. if a person or thing blocks the elevator door, it should stop. 
+    // This is the diff between putting your hand in the door being a friendly gesture hold the elevator and cutting your hand off.
   }
-
+  
+  //TODO BIG REFACTOR MOVE FLOOR HAPPENS FIRST AND ALREADY DOES A LOT OF THIS
   dockCheck(): void {
     let dockPerformed = false;
 
     const dockIfNeeded = (floor: number): void => {
       if (this.currFloor === floor) {
         dockPerformed = true;
-        this.travelTime += 5;
-        console.log(`docking at floor: ${this.currFloor}`);
+        this.travelTime += 5; //REDUNDANT? TIME IS INCREMENTED IN MOVEFLOOR() MOVEFLOOR ALREADY REMOVES THIS FLOOR FROM DOCKREQUESTS. THIS WILL NEVER BE INVOKED.
         this.dock();
-        this.floorsStoppedAt.push(this.currFloor);
+        this.floorsStoppedAt.push(this.currFloor); //ALSO REDUNDANT?? HAPPENING IN MOVEFLOOR WTF
       }
     };
 
-    if (this.dockRequests.includes(this.currFloor)) {
+    if (this.dockRequests.includes(this.currFloor)) { //ALSO REDUNDANT
       dockIfNeeded(this.currFloor);
     } else if (
-      this.direction === Direction.Up &&
+      this.direction === Direction.Up && //SOME FORM OF THIS WILL BE USEFUL ONCE UP/DOWN REQUESTS ARE IMPLEMENTD.
       this.upRequests.includes(this.currFloor)
     ) {
       dockIfNeeded(this.currFloor);
@@ -272,30 +286,35 @@ export default class ElevatorCar {
     }
 
   }
-  
+  // TODO IF DIRECTION IS UP AND THERE US A USER ON CURRFLOOR WANTING TO GO UP, THE ELEVATOR SHOULD ALSO STOP. 
+  // I DON'T THINK THIS IS ACCOUNTED FOR, DOUBLE CHECK
+
   moveFloor(): void {
     const processFloor = async (floor: number, isDocking: boolean): Promise<void> => {
+      console.log(`Processing floor ${floor}`);
+
+      eventEmitter.emit('updateElevatorModel');
+      console.log('event emit');
       const waitDuration = isDocking ? 5 : 1;
   
       this.currFloor = floor;
-      this.travelTime += waitDuration; // Increment travelTime based on waitDuration after moving
+      this.travelTime += waitDuration;
   
       if (isDocking) {
-        this.floorsStoppedAt.push(floor); // Record the floor where docking occurred
-        this.removeRequestsEqualToCurrFloor(); // Remove the dock request after docking
-        this.dockCheck(); // Moved dockCheck outside the setTimeout
+        this.floorsStoppedAt.push(floor);
+        this.removeRequestsEqualToCurrFloor();
+        this.dockCheck();
       }
   
-      await this.delay(waitDuration); // Simulate the delay between floors
+      await this.delay(waitDuration);
   
-      // Move to the next floor if there are still requests
       if (!this.noRequests()) {
         const nextFloor = this.direction === Direction.Up ? floor + 1 : floor - 1;
         await processFloor(nextFloor, this.dockRequests.includes(nextFloor));
       } else if (isDocking && this.dockRequests.length > 0) {
-        const nextDockFloor = this.dockRequests.shift()!; // Move to the next dock request
+        const nextDockFloor = this.dockRequests.shift()!;
         await processFloor(nextDockFloor, true);
-      }
+      }    
     };
   
     // Start the floor movement
@@ -304,10 +323,8 @@ export default class ElevatorCar {
   
   
   
-  
-  
 
-
+// MAYBE REFACTOR TO ASYNC???
   private delay(seconds: number): Promise<void> {
     return new Promise(resolve => {
       setTimeout(() => {

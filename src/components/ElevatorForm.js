@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ElevatorForm.css';
 
-const ElevatorForm = ({ onSubmit, setElevatorModelData }) => {
+const ElevatorForm = ({ onSubmit}) => {
   const totalFloorsRef = useRef(null);
   const currFloorRef = useRef(null);
   const dockRequestsRef = useRef(null);
@@ -135,13 +135,6 @@ const ElevatorForm = ({ onSubmit, setElevatorModelData }) => {
 
       // Your existing form submission logic here
       onSubmit({
-        totalFloors: parseInt(totalFloors, 10),
-        currFloor: parseInt(currFloor, 10),
-        dockRequests: trimmedDockRequests.split(',').map((floor) => parseInt(floor.trim(), 10)),
-      });
-
-      // Set data for ElevatorModel
-      setElevatorModelData({
         totalFloors: parseInt(totalFloors, 10),
         currFloor: parseInt(currFloor, 10),
         dockRequests: trimmedDockRequests.split(',').map((floor) => parseInt(floor.trim(), 10)),
