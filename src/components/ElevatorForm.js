@@ -116,7 +116,7 @@ const ElevatorForm = ({ onSubmit}) => {
 
       // Reject if the floor is not a positive integer or greater than totalFloors
       const parsedFloor = parseInt(trimmedFloor, 10);
-      if (!/^\d+$/.test(trimmedFloor) || parsedFloor < 0 || parsedFloor > parseInt(totalFloors, 10)) {
+      if (!/^\d+$/.test(trimmedFloor) || parsedFloor <= 0 || parsedFloor > parseInt(totalFloors, 10)) {
         dockRequestErrors.push(`${trimmedFloor} is not a valid floor`);
       }
     }
@@ -156,7 +156,7 @@ const ElevatorForm = ({ onSubmit}) => {
 
   const validateTotalFloors = () => {
     const parsedTotalFloors = parseInt(totalFloors, 10);
-    if (isNaN(parsedTotalFloors) || parsedTotalFloors <= 0) {
+    if (isNaN(parsedTotalFloors) || parsedTotalFloors <= 1) {
       setErrorForTotalFloors(parsedTotalFloors === 0 ? "That's not an elevator, that's just an expensive closet!" : 'Please enter a positive whole number for the total floors');
     } else if (parsedTotalFloors > 163) {
       setErrorForTotalFloors("If your elevator is taller than the world's tallest building, please inquire about our premium services!");
@@ -168,9 +168,9 @@ const ElevatorForm = ({ onSubmit}) => {
 
   const validateCurrFloor = () => {
     const parsedCurrFloor = parseInt(currFloor, 10);
-    if (isNaN(parsedCurrFloor) || parsedCurrFloor < 0) {
-      setErrorForCurrFloor(parsedCurrFloor < 0 ? "Service for basements will be in an upcoming update. For now, only floors greater than zero are allowed!" : 'Please enter a positive whole number for the current floor');
-    } else if (parsedCurrFloor > parseInt(totalFloors, 10)) {
+    if (isNaN(parsedCurrFloor) || parsedCurrFloor <= 0) {
+      setErrorForCurrFloor(parsedCurrFloor <= 0 ? "Service for basements will be in an upcoming update. For now, only floors greater than zero are allowed!" : 'Please enter a positive whole number for the current floor');
+    } else if (parsedCurrFloor > parseInt(totalFloors, 10)) { 
       setErrorForCurrFloor("The Elevator be above the roof, that is a safety hazard!");
     } else {
       setErrorForCurrFloor('');

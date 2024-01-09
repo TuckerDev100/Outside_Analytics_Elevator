@@ -7,22 +7,25 @@ const ElevatorModel = ({ elevatorInstance }) => {
   const [floors, setFloors] = useState([]);
 
   const generateFloors = () => {
-    console.log('generateFloors invoked');
-    const newFloors = Array.from({ length: totalFloors + 1 }, (_, index) => {
+    const newFloors = Array.from({ length: totalFloors }, (_, index) => {
       const isElevatorFloor = index === totalFloors - currFloor;
-      const reversedIndex = totalFloors - index;
+      const reversedIndex = (totalFloors - index) ;
       return { floorNumber: reversedIndex, isElevatorFloor };
     });
     setFloors(newFloors);
   };
+  
+  
+  
+  
 
   useEffect(() => {
     // Subscribe to changes and update when triggered
     const updateElevatorModel = () => {
-      console.log('updateElevatorModel event received');
       generateFloors();
     };
     eventEmitter.on('updateElevatorModel', updateElevatorModel);
+    console.log(` MODEL RENDERING CURRFLOOR: ${elevatorInstance.currFloor}`);
 
     // Cleanup the event listener when the component unmounts
     return () => {
@@ -32,6 +35,7 @@ const ElevatorModel = ({ elevatorInstance }) => {
 
   useEffect(() => {
     // Initial render
+   // console.log(`inital render`)
     generateFloors();
   }, [totalFloors, currFloor]); // Run only when totalFloors or currFloor changes
 
