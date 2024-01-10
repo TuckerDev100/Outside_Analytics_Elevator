@@ -99,6 +99,8 @@ export default class ElevatorCar {
       return null;
     }
 
+    console.log('wakeup called')
+
     this.removeRequestsEqualToCurrFloor();
      this.setInitialDirection();
   }
@@ -163,16 +165,7 @@ export default class ElevatorCar {
   
   
 
-  dock(): void {
-    //NOTE - This is a little silly as is. Ideally, you would have a system or switch that would physically verify that the elevator has stopped,
-    // another one to verify that the door has opened successfully, and another one to verify that the door has closed successfully before
-    // moving the elevator. This is because it is VERY IMPORTANT to make sure the elevator doors are fully closed before moving it
-    //TODO add a stop elevator method
-    //TODO add a door opening method
-    //TODO add a weight check method
-    //TODO add a door closing method. if a person or thing blocks the elevator door, it should stop. 
-    // This is the diff between putting your hand in the door being a friendly gesture hold the elevator and cutting your hand off.
-  }
+
 
   moveFloor(floor: number): void {
 
@@ -198,75 +191,63 @@ export default class ElevatorCar {
   }
   
 
-  private async rest(): Promise<void> {
-    console.log("well rested");
-
-    while (this.dockRequests.length === 0) {
-      this.nap = true;
-      await this.delay(1);
-    }
-
-    this.nap = false;
-    this.wakeUpElevator();
-  }
-
   private async controlLoop(): Promise<void> {
     this.waitDuration = 1;
+    this.nap = false;
+    const updateDockRequestsHandler = () => {
+      // Update dockRequests state in ElevatorCar
+      this.dockRequests = this.dockRequests.slice();
+      // Add any additional logic if needed
+    };
   
-    while (this.dockRequests.length > 0 || this.currFloor > 1) {
-
-      
+    eventEmitter.on('updateDockRequests', updateDockRequestsHandler);
+  
+    while (this.direction !== Direction.None) {
       this.moveFloor(this.currFloor);
-  
       await this.delay(this.waitDuration);
-      console.log(`WaItEd for ${this.waitDuration} seconds`);
-      eventEmitter.emit('updateDockRequests')
+      console.log(`Waited for ${this.waitDuration} seconds`);
+      eventEmitter.emit('updateDockRequests');
       eventEmitter.emit('updateElevatorModel'); // Consider whether to await this or not
       this.routeCheck();
-      console.log(`${this.direction}`)
-      // when dockRequests are zero and currFloor is one, routeCheck will set direction to up and we will have one extra move up.
-
-
-
-      if (this.direction === Direction.Up){
-        this.currFloor +=1
+      console.log(`${this.direction}`);
+  
+      if (this.direction === Direction.Up) {
+        this.currFloor += 1;
       } else if (this.direction === Direction.Down) {
-        this.currFloor -=1
-      } else if (this.direction === Direction.None) {
-        console.log('Thats all folks!')
+        this.currFloor -= 1;
       }
+    }
+  
+    // Cleanup the event listener when the function exits
+    eventEmitter.off('updateDockRequests', updateDockRequestsHandler);
+    this.rest();
   }
-}
-
-        //3 solutions
-      // change order of operations
-      // use the None direction
-      // make a function to break out of the loops.
-
   
-/*!SECTION
-const promise = new Promise ((resolve, reject) => {
-  resolve();
-});
 
-promise
-  .then(() => {
-    console.log('first');
-  })
-  .then(() => {
-    return new Promise ((resolve, reject) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000)
-    })
-  })
-  .then(() => {
-    setTimeout(() => {
-      console.log('third')
-    }, 1000)
-  })
-*/
+
+  private rest(): void {
+    console.log("Resting...");
   
+    // Define the handler function
+    const updateDockRequestsHandler = () => {
+      console.log("Received updateDockRequests during rest. Waking up elevator.");
+      this.wakeUpElevator();
+  
+      // Remove the listener after waking up the elevator
+      eventEmitter.off('updateDockRequests', updateDockRequestsHandler);
+    };
+  
+    // Listen for updateDockRequests
+    eventEmitter.on('updateDockRequests', updateDockRequestsHandler);
+  }
+  
+  
+
+
+
+
+
+
   // MAYBE REFACTOR TO ASYNC???
 private async delay(seconds: number): Promise<void> {
   return new Promise(resolve => {
@@ -275,6 +256,8 @@ private async delay(seconds: number): Promise<void> {
     }, seconds * 1000);
   });
 }
+
+
 
 
   safetyCheck(): boolean {
@@ -295,6 +278,17 @@ private async delay(seconds: number): Promise<void> {
     } else {
       return true;
     }
+  }
+
+  dock(): void {
+    //NOTE - This is a little silly as is. Ideally, you would have a system or switch that would physically verify that the elevator has stopped,
+    // another one to verify that the door has opened successfully, and another one to verify that the door has closed successfully before
+    // moving the elevator. This is because it is VERY IMPORTANT to make sure the elevator doors are fully closed before moving it
+    //TODO add a stop elevator method
+    //TODO add a door opening method
+    //TODO add a weight check method
+    //TODO add a door closing method. if a person or thing blocks the elevator door, it should stop. 
+    // This is the diff between putting your hand in the door being a friendly gesture hold the elevator and cutting your hand off.
   }
 
   invokeEmergencyStop(): void {

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ElevatorCar from './components/ElevatorCar';
 import ElevatorForm from './components/ElevatorForm';
 import ElevatorModel from './components/ElevatorModel';
-import ElevatorSelect from './components/ElevatorSelect'
+import ElevatorSelect from './components/ElevatorSelect';
 import Header from './components/Header';
 import RestartButton from './components/RestartButton';
 import CarDisplay from './components/CarDisplay';
@@ -42,7 +42,14 @@ function App() {
     setFormSubmitted(true);
   };
 
-
+  const updateElevatorCar = (floorNumber) => {
+    setElevatorInstance((prevInstance) => {
+      return {
+        ...prevInstance,
+        dockRequests: [...prevInstance.dockRequests, floorNumber],
+      };
+    });
+  };
 
   return (
     <div>
@@ -50,11 +57,11 @@ function App() {
       <div className="app-container">
         <Header />
         <div className="centered-container">
-          {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit}/>}
+          {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit} />}
           {formSubmitted && (
             <div className="columns-container">
               <div className="column">
-             <ElevatorSelect elevatorInstance={elevatorInstance}/>
+                <ElevatorSelect elevatorInstance={elevatorInstance} updateElevatorCar={updateElevatorCar} />
               </div>
               <div className="column">
                 {/* This is the center column, displaying ElevatorModel */}

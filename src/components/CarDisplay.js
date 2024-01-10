@@ -5,12 +5,16 @@ const CarDisplay = ({ elevatorInstance }) => {
   const [floorsStoppedAt, setFloorsStoppedAt] = useState([]);
   const [travelTime, setTravelTime] = useState(0);
   const [currFloor, setCurrFloor] = useState(0); // Add state for current floor
+  const [dockRequests, setDockRequests] = useState([]); // Add state for current floor
+
 
   useEffect(() => {
     const updateDisplay = () => {
       setFloorsStoppedAt([...elevatorInstance.floorsStoppedAt]);
       setTravelTime(elevatorInstance.travelTime);
       setCurrFloor(elevatorInstance.currFloor); // Update current floor
+      setDockRequests([...elevatorInstance.dockRequests]); // Update current floor
+
     };
 
     updateDisplay();
@@ -28,6 +32,7 @@ const CarDisplay = ({ elevatorInstance }) => {
       <p>Current Floor: {currFloor}</p>
       <p>Floors Stopped At: {floorsStoppedAt.join(', ')}</p>
       <p>Travel Time: {travelTime} seconds</p>
+      <p>Dock Requests: {dockRequests.join(', ')} </p>
     </div>
   );
 };

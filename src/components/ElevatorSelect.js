@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import './ElevatorSelect.css';
 import eventEmitter from './eventEmitter';
 
-const ElevatorSelect = ({ elevatorInstance }) => {
+const ElevatorSelect = ({ elevatorInstance, updateElevatorCar }) => {
   const { totalFloors, dockRequests } = elevatorInstance;
   const [floorsData, setFloorsData] = useState([]);
 
@@ -15,6 +15,17 @@ const ElevatorSelect = ({ elevatorInstance }) => {
     });
     setFloorsData(newFloorsData);
   };
+
+  const handleFloorClick = (floorNumber) => {
+    // Check if the floor is not already in dockRequests
+    if (!dockRequests.includes(floorNumber)) {
+      // Add the floor to dockRequests
+      dockRequests.push(floorNumber);
+      // Emit an event to update the elevator state
+      eventEmitter.emit('updateDockRequests');
+    }
+  };
+  
 
   useEffect(() => {
     // Subscribe to changes and update when triggered
@@ -41,6 +52,7 @@ const ElevatorSelect = ({ elevatorInstance }) => {
         {floorsData.map((floorData) => (
           <div
             key={floorData.floorNumber}
+            onClick={() => handleFloorClick(floorData.floorNumber)}
             className={`floor-circle ${floorData.isInDockRequests ? 'yellow' : 'white'}`}
           >
             {floorData.floorNumber}
