@@ -159,7 +159,7 @@ const ElevatorForm = ({ onSubmit}) => {
     if (isNaN(parsedTotalFloors) || parsedTotalFloors <= 1) {
       setErrorForTotalFloors(parsedTotalFloors === 0 ? "That's not an elevator, that's just an expensive closet!" : 'Please enter a positive whole number for the total floors');
     } else if (parsedTotalFloors > 163) {
-      setErrorForTotalFloors("If your elevator is taller than the world's tallest building, please inquire about our premium services!");
+      setErrorForTotalFloors("The tallest building in the world is 163 stories. If you want taller, please inquire about our premium services!");
     } else {
       setErrorForTotalFloors('');
     }

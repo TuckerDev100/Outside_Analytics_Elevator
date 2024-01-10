@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import ElevatorCar from './components/ElevatorCar';
 import ElevatorForm from './components/ElevatorForm';
 import ElevatorModel from './components/ElevatorModel';
+import ElevatorSelect from './components/ElevatorSelect'
 import Header from './components/Header';
 import RestartButton from './components/RestartButton';
 import CarDisplay from './components/CarDisplay';
@@ -53,8 +54,7 @@ function App() {
           {formSubmitted && (
             <div className="columns-container">
               <div className="column">
-                {/* This is the left column, reserve for the third component */}
-                {/* You can add your third component here in the future */}
+             <ElevatorSelect elevatorInstance={elevatorInstance}/>
               </div>
               <div className="column">
                 {/* This is the center column, displaying ElevatorModel */}

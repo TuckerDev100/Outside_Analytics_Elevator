@@ -1,0 +1,37 @@
+/* ElevatorSelect.css */
+.elevator-select-container {
+  max-height: 500px; /* Set the maximum height for the elevator select container */
+  max-width: 500px; /* Set the maximum width for the elevator select container */
+  overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
+  border: 2px solid black; /* Add a black border around the container */
+  align-items: center;
+  margin-right: 60px;
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
+  justify-content: space-around; /* Space items evenly along the main axis */
+}
+
+.elevator-select-scrollable {
+  max-height: 400px; /* Set the maximum height for the elevator select component */
+  width: 100%; /* Make the component take the full width of the container */
+  overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
+}
+
+.floor-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5px;
+  border: 1px solid black;
+}
+
+.yellow {
+  background-color: yellow;
+}
+
+.white {
+  background-color: white;
+}

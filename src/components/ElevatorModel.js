@@ -15,9 +15,6 @@ const ElevatorModel = ({ elevatorInstance }) => {
     setFloors(newFloors);
   };
   
-  
-  
-  
 
   useEffect(() => {
     // Subscribe to changes and update when triggered
@@ -41,19 +38,21 @@ const ElevatorModel = ({ elevatorInstance }) => {
 
   return (
     <div>
-      <h2>Elevator Model</h2>
-      <div className="elevator-model-container">
-        <div className="elevator-model">
-          {floors.map((floor) => (
-            <div key={floor.floorNumber} className="floor">
-              <span className="floor-number">{floor.floorNumber}</span>
-              <span style={{ whiteSpace: 'pre' }}>{floor.isElevatorFloor ? '| X |' : '|   |'}</span>
+        <h2>Elevator Model</h2>
+        <div className="elevator-model-container">
+            <div className="elevator-model-scrollable">
+                <div className="elevator-model">
+                    {floors.map((floor) => (
+                        <div key={floor.floorNumber} className="floor">
+                            <span className="floor-number">{floor.floorNumber}</span>
+                            <span style={{ whiteSpace: 'pre' }}>{floor.isElevatorFloor ? '| X |' : '|   |'}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
-          ))}
         </div>
-      </div>
     </div>
-  );
+);
 };
 
 export default ElevatorModel;

@@ -1,11 +1,21 @@
 /* ElevatorModel.css */
+/* ElevatorModel.css */
 .elevator-model-container {
-    display: flex;
-    justify-content: center;
+    max-height: 500px; /* Set the maximum height for the elevator model */
+    max-width: 500px; /* Set the maximum width for the elevator model */
+    overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
+    border: 2px solid black; /* Add a black border around the container */
     align-items: center;
-    height: 300px; /* Adjust as needed */
-    margin-right: 50px; /* Adjust as needed to move it to the left */
+    margin-right: 60px;
 }
+
+/* ElevatorModel.css */
+.elevator-model-scrollable {
+    max-height: 400px; /* Set the maximum height for the elevator model */
+    max-width: 1000px; /* Set the maximum width for the elevator model */
+    overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
+}
+
 
 .elevator-model {
     display: flex;

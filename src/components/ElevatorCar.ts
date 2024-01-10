@@ -220,6 +220,7 @@ export default class ElevatorCar {
   
       await this.delay(this.waitDuration);
       console.log(`WaItEd for ${this.waitDuration} seconds`);
+      eventEmitter.emit('updateDockRequests')
       eventEmitter.emit('updateElevatorModel'); // Consider whether to await this or not
       this.routeCheck();
       console.log(`${this.direction}`)
