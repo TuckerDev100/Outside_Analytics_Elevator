@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ElevatorForm.css';
 
-const ElevatorForm = ({ onSubmit}) => {
+const ElevatorForm = ({ onSubmit }) => {
   const totalFloorsRef = useRef(null);
   const currFloorRef = useRef(null);
   const dockRequestsRef = useRef(null);
@@ -15,6 +15,7 @@ const ElevatorForm = ({ onSubmit}) => {
   const [errorForCurrFloor, setErrorForCurrFloor] = useState('');
   const [errorForDockRequests, setErrorForDockRequests] = useState('');
   const [isFormReady, setFormReady] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === 'Tab') {
@@ -80,9 +81,7 @@ const ElevatorForm = ({ onSubmit}) => {
       validateTotalFloors();
     } else if (target === currFloorRef.current && currFloor) {
       validateCurrFloor();
-    }
-    // Additional onBlur checks for other fields can be added here
-    else if (target === dockRequestsRef.current && dockRequests) {
+    } else if (target === dockRequestsRef.current && dockRequests) {
       validateDockRequests();
 
       // Update form readiness after dock requests validation
@@ -133,12 +132,17 @@ const ElevatorForm = ({ onSubmit}) => {
       // Trim trailing comma from dockRequests
       const trimmedDockRequests = dockRequests.replace(/,\s*$/, '');
 
-      // Your existing form submission logic here
-      onSubmit({
-        totalFloors: parseInt(totalFloors, 10),
-        currFloor: parseInt(currFloor, 10),
-        dockRequests: trimmedDockRequests.split(',').map((floor) => parseInt(floor.trim(), 10)),
-      });
+      // Check if there are no errors before submitting
+      if (!errorForTotalFloors && !errorForCurrFloor && !errorForDockRequests) {
+        // Your existing form submission logic here
+        onSubmit({
+          totalFloors: parseInt(totalFloors, 10),
+          currFloor: parseInt(currFloor, 10),
+          dockRequests: trimmedDockRequests.split(',').map((floor) => parseInt(floor.trim(), 10)),
+        });
+      } else {
+        setSubmitError('Please validate all forms before submitting.');
+      }
     }
   };
 
@@ -157,7 +161,7 @@ const ElevatorForm = ({ onSubmit}) => {
   const validateTotalFloors = () => {
     const parsedTotalFloors = parseInt(totalFloors, 10);
     if (isNaN(parsedTotalFloors) || parsedTotalFloors <= 1) {
-      setErrorForTotalFloors(parsedTotalFloors === 0 ? "That's not an elevator, that's just an expensive closet!" : 'Please enter a positive whole number for the total floors');
+      setErrorForTotalFloors(parsedTotalFloors === 1 ? "That's not an elevator, that's just an expensive closet!" : 'Please enter a positive whole number for the total floors');
     } else if (parsedTotalFloors > 163) {
       setErrorForTotalFloors("The tallest building in the world is 163 stories. If you want taller, please inquire about our premium services!");
     } else {
@@ -169,9 +173,9 @@ const ElevatorForm = ({ onSubmit}) => {
   const validateCurrFloor = () => {
     const parsedCurrFloor = parseInt(currFloor, 10);
     if (isNaN(parsedCurrFloor) || parsedCurrFloor <= 0) {
-      setErrorForCurrFloor(parsedCurrFloor <= 0 ? "Service for basements will be in an upcoming update. For now, only floors greater than zero are allowed!" : 'Please enter a positive whole number for the current floor');
-    } else if (parsedCurrFloor > parseInt(totalFloors, 10)) { 
-      setErrorForCurrFloor("The Elevator be above the roof, that is a safety hazard!");
+      setErrorForCurrFloor(parsedCurrFloor <= 1 ? "Service for basements will be in an upcoming update. For now, only floors greater than zero are allowed!" : 'Please enter a positive whole number for the current floor');
+    } else if (parsedCurrFloor > parseInt(totalFloors, 10)) {
+      setErrorForCurrFloor("The elevator cannot be above the roof, that is a safety hazard!");
     } else {
       setErrorForCurrFloor('');
     }
@@ -180,13 +184,13 @@ const ElevatorForm = ({ onSubmit}) => {
 
   const updateFormReady = () => {
     setFormReady(
-      !errorForTotalFloors &&
-      !errorForCurrFloor &&
-      !errorForDockRequests &&
+
       totalFloors &&
       currFloor &&
       dockRequests
     );
+    // Clear submit error message when any form field is focused
+    setSubmitError('');
   };
 
   useEffect(() => {
@@ -198,7 +202,7 @@ const ElevatorForm = ({ onSubmit}) => {
     <form className="elevator-form" onSubmit={handleSubmit}>
       <div className="form-group">
         <h5>Please enter initial elevator info</h5>
-        <label>How many floors in the building?</label>
+        <p style={{ fontSize: '12px', textAlign: 'center', marginTop: '1px'}}>press enter or tab to quickly switch between fields</p>        <label>How many floors in the building?</label>
         <input
           type="text"
           value={totalFloors}
@@ -235,6 +239,8 @@ const ElevatorForm = ({ onSubmit}) => {
         />
         {errorForDockRequests && <p className="error-message">{errorForDockRequests}</p>}
       </div>
+
+      {submitError && <p className="error-message">{submitError}</p>}
 
       <button type="submit" ref={submitButtonRef} disabled={!isFormReady}>
         Submit

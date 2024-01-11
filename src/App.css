@@ -2,6 +2,15 @@
   text-align: center;
 }
 
+.meme-container img {
+  position: absolute;
+  top: 400px;
+  left: 0;
+  z-index: 0; 
+  width: 20%;
+  height: auto;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

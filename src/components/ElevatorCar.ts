@@ -116,8 +116,12 @@ export default class ElevatorCar {
     } else {
       const closestAbove = Math.min(...aboveRequests, this.totalFloors);
       const closestBelow = Math.max(...belowRequests, 1);
-  
-      this.direction = closestAbove < closestBelow ? Direction.Up : Direction.Down;
+    
+      // Factor in the position of currFloor
+      const aboveDistance = Math.abs(closestAbove - this.currFloor);
+      const belowDistance = Math.abs(closestBelow - this.currFloor);
+    
+      this.direction = aboveDistance < belowDistance ? Direction.Up : Direction.Down;
     }
     this.controlLoop();
   }

@@ -1,4 +1,3 @@
-// App.js
 import React, { useState } from 'react';
 import ElevatorCar from './components/ElevatorCar';
 import ElevatorForm from './components/ElevatorForm';
@@ -60,15 +59,16 @@ function App() {
           {!formSubmitted && <ElevatorForm onSubmit={handleFormSubmit} />}
           {formSubmitted && (
             <div className="columns-container">
+              <div className="meme-container">
+                <img src="/images/Screenshot from 2024-01-09 19-08-20.png" alt="Graphic design" />
+              </div>
               <div className="column">
                 <ElevatorSelect elevatorInstance={elevatorInstance} updateElevatorCar={updateElevatorCar} />
               </div>
               <div className="column">
-                {/* This is the center column, displaying ElevatorModel */}
                 <ElevatorModel elevatorInstance={elevatorInstance} />
               </div>
               <div className="column">
-                {/* This is the right column, displaying CarDisplay */}
                 <CarDisplay elevatorInstance={elevatorInstance} />
               </div>
             </div>
