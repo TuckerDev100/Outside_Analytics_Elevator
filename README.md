@@ -11,21 +11,6 @@ Outputs: [total travel time, floors visited in order] (e.g. 560 12,2,9,1,32)
 Program Constants:
 Single floor travel time: 10
 
-# Installation
-
-### If using the build.zip file:
-
-1. Download the build.zip file.
-2. Right-click on it and choose "Extract" or "Unzip" to unpack its contents.
-3. If you don't have npm, please go to https://nodejs.org/ and install Node.js and npm.
-4. Open a Command Prompt (Windows) or Terminal (macOS/Linux) window.
-5. Navigate to the extracted build folder using the 'cd' command. Ensure you are at the level where you see the different components of the extracted file.
-6. Run the command `npm install -g serve` and wait for it to finish.
-7. After the installation is complete, run the command `serve -s` and wait for it to finish.
-8. Once done, open a web browser and enter http://localhost:5000 into the address bar.
-
-Voila! You should now see the app functionality.
-
 ### If cloning from GitHub
 
 1. Open a terminal.
@@ -37,17 +22,10 @@ Voila! You should now see the app functionality.
 7. It should open a webpage on localhost:3000.
 
 # How to use the App
-Enter information into the text boxes. My apologies, but I do not have error handling or input validation. 
-For number of floors,
- enter a whole integer greater than one. For the floor the elevator is on enter enter a number greater than zero and less than
- or equal to the total number of floors.
- for the floors that need to be visited, enter a comma separted list of integers, such as
- 1,8,4,2. Do not add any values less than zero or greater than total floors.
-
- If you encounter an error, refresh the page.
-
-Hit F12 and look at the console. The list of floors in order will be in the floorsStoppedAt array.
-The total time taken will be the value for travelTime
+go to
+https://master.d1oh7hlyihrrmi.amplifyapp.com/
+Enter the input information
+Submit
 
 ## ASSUMPTIONS: **\***
 
