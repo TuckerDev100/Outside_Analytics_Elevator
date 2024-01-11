@@ -1,8 +1,8 @@
 .car-display-container {
-    max-height: 500px; /* Set the maximum height for the elevator model */
-    max-width: 500px; /* Set the maximum width for the elevator model */
-    overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
-    border: 2px solid black; /* Add a black border around the container */
+    max-height: 500px;
+    max-width: 500px;
+    overflow-y: auto; 
+    border: 2px solid black;
     align-items: center;
     margin-right: 60px;
     margin-right:60px;
@@ -10,9 +10,9 @@
 }
 
 .car-display-scrollable {
-    max-height: 400px; /* Set the maximum height for the elevator model */
-    max-width: 1000px; /* Set the maximum width for the elevator model */
-    overflow-y: auto; /* Add overflow-y property to enable vertical scrolling */
+    max-height: 400px;
+    max-width: 1000px;
+    overflow-y: auto;
     
 }
 

@@ -134,36 +134,44 @@ export default class ElevatorCar {
   }
 
   routeCheck(): void {
+    switch (true) {
+      case this.currFloor === this.totalFloors:
+        this.direction = Direction.Down;
+        break;
+      
+      case this.currFloor === 1:
+        this.direction = this.dockRequests.length > 0 ? Direction.Up : Direction.None;
+        break;
   
-    if (this.currFloor === this.totalFloors) {
-      this.direction = Direction.Down;
-    } 
-    else if (this.currFloor === 1) {
-      if(this.dockRequests.length > 0 ){
-        this.direction = Direction.Up;
-      }
-      else {
-        this.direction = Direction.None;
-      }
-    }
-    else if (this.dockRequests.length > 0) {
-      if (this.direction === Direction.Up && this.dockRequests.some((floor) => floor > this.currFloor)) {
-        this.direction = Direction.Up;
-      } else if (this.direction === Direction.Up && this.dockRequests.some((floor) => floor < this.currFloor) && !this.dockRequests.some((floor) => floor > this.currFloor)) {
-        this.direction = Direction.Down;
-      } else if (this.direction === Direction.Down && this.dockRequests.some((floor) => floor < this.currFloor)) {
-        this.direction = Direction.Down;
-      } else if (this.direction === Direction.Down && this.dockRequests.some((floor) => floor > this.currFloor) && !this.dockRequests.some((floor) => floor < this.currFloor)) {
-        this.direction = Direction.Up;
-      }
-    } else {
-      if (this.currFloor > 1) {
-        this.direction = Direction.Down;
-      } else {
-        this.direction = Direction.None;
-      }
+      case this.dockRequests.length > 0:
+        switch (this.direction) {
+          case Direction.Up:
+            if (this.dockRequests.some((floor) => floor > this.currFloor)) {
+              this.direction = Direction.Up;
+            } else if (this.dockRequests.some((floor) => floor < this.currFloor) && !this.dockRequests.some((floor) => floor > this.currFloor)) {
+              this.direction = Direction.Down;
+            }
+            break;
+  
+          case Direction.Down:
+            if (this.dockRequests.some((floor) => floor < this.currFloor)) {
+              this.direction = Direction.Down;
+            } else if (this.dockRequests.some((floor) => floor > this.currFloor) && !this.dockRequests.some((floor) => floor < this.currFloor)) {
+              this.direction = Direction.Up;
+            }
+            break;
+  
+          default:
+            break;
+        }
+        break;
+  
+      default:
+        this.direction = this.currFloor > 1 ? Direction.Down : Direction.None;
+        break;
     }
   }
+  
   
   
   
@@ -199,9 +207,7 @@ export default class ElevatorCar {
     this.waitDuration = 1;
     this.nap = false;
     const updateDockRequestsHandler = () => {
-      // Update dockRequests state in ElevatorCar
       this.dockRequests = this.dockRequests.slice();
-      // Add any additional logic if needed
     };
   
     eventEmitter.on('updateDockRequests', updateDockRequestsHandler);
@@ -211,7 +217,7 @@ export default class ElevatorCar {
       await this.delay(this.waitDuration);
       console.log(`Waited for ${this.waitDuration} seconds`);
       eventEmitter.emit('updateDockRequests');
-      eventEmitter.emit('updateElevatorModel'); // Consider whether to await this or not
+      eventEmitter.emit('updateElevatorModel');
       this.routeCheck();
       console.log(`${this.direction}`);
   
@@ -222,7 +228,6 @@ export default class ElevatorCar {
       }
     }
   
-    // Cleanup the event listener when the function exits
     eventEmitter.off('updateDockRequests', updateDockRequestsHandler);
     this.rest();
   }
@@ -232,27 +237,17 @@ export default class ElevatorCar {
   private rest(): void {
     console.log("Resting...");
   
-    // Define the handler function
     const updateDockRequestsHandler = () => {
       console.log("Received updateDockRequests during rest. Waking up elevator.");
       this.wakeUpElevator();
   
-      // Remove the listener after waking up the elevator
       eventEmitter.off('updateDockRequests', updateDockRequestsHandler);
     };
   
-    // Listen for updateDockRequests
     eventEmitter.on('updateDockRequests', updateDockRequestsHandler);
   }
-  
-  
 
 
-
-
-
-
-  // MAYBE REFACTOR TO ASYNC???
 private async delay(seconds: number): Promise<void> {
   return new Promise(resolve => {
     setTimeout(() => {

@@ -17,24 +17,20 @@ const ElevatorModel = ({ elevatorInstance }) => {
   
 
   useEffect(() => {
-    // Subscribe to changes and update when triggered
     const updateElevatorModel = () => {
       generateFloors();
     };
     eventEmitter.on('updateElevatorModel', updateElevatorModel);
     console.log(` MODEL RENDERING CURRFLOOR: ${elevatorInstance.currFloor}`);
 
-    // Cleanup the event listener when the component unmounts
     return () => {
       eventEmitter.off('updateElevatorModel', updateElevatorModel);
     };
   }, [totalFloors, currFloor]);
 
   useEffect(() => {
-    // Initial render
-   // console.log(`inital render`)
     generateFloors();
-  }, [totalFloors, currFloor]); // Run only when totalFloors or currFloor changes
+  }, [totalFloors, currFloor]);
 
   return (
     <div>

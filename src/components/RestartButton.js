@@ -1,4 +1,3 @@
-// RestartButton.js
 import React from 'react';
 import './RestartButton.css';
 

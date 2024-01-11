@@ -13,17 +13,14 @@ const CarDisplay = ({ elevatorInstance }) => {
     const updateDisplay = () => {
       setFloorsStoppedAt([...elevatorInstance.floorsStoppedAt]);
       setTravelTime(elevatorInstance.travelTime);
-      setCurrFloor(elevatorInstance.currFloor); // Update current floor
-      setDockRequests([...elevatorInstance.dockRequests]); // Update current floor
+      setCurrFloor(elevatorInstance.currFloor);
+      setDockRequests([...elevatorInstance.dockRequests]);
 
     };
 
     updateDisplay();
 
-    // Listen for changes in the elevatorInstance state
-    const intervalId = setInterval(updateDisplay, 500); // Adjust the interval as needed
-
-    // Clean up the interval when the component unmounts
+    const intervalId = setInterval(updateDisplay, 500);
     return () => clearInterval(intervalId);
   }, [elevatorInstance]);
 

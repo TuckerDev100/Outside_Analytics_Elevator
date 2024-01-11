@@ -41,7 +41,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Keep your existing styles for the enabled button */
 button {
   width: 25%;
   background-color: #007bff;

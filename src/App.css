@@ -52,8 +52,8 @@
 
 .centered-container {
   margin: 0 auto;
-  max-width: 800px; /* Adjust the value as needed */
-  text-align: left; /* Adjust as needed, you might set it to center for the initial form */
+  max-width: 800px;
+  text-align: left; 
 }
 
 .columns-container {
@@ -62,5 +62,5 @@
 }
 
 .column {
-  width: 30%; /* Adjust the value as needed */
+  width: 30%;
 }

@@ -1,4 +1,3 @@
-// ElevatorForm.js
 import React, { useState, useEffect, useRef } from 'react';
 import './ElevatorForm.css';
 
@@ -22,46 +21,35 @@ const ElevatorForm = ({ onSubmit }) => {
       e.preventDefault();
       const target = e.target;
 
-      // Perform validation based on the current target
       if (target === submitButtonRef.current) {
         validateDockRequests();
         if (!errorForDockRequests) {
-          // If there are no errors in the third field, focus on the submit button
           setSubmitButtonFocus();
         }
       } else if (target === totalFloorsRef.current) {
         validateTotalFloors();
         if (errorForTotalFloors) {
-          // If there are errors in the first field, focus on nothing
           return;
         }
-        // If no errors in the first field, focus on the second field
         setCurrFloorFocus();
       } else if (target === currFloorRef.current) {
         validateCurrFloor();
         if (errorForCurrFloor) {
-          // If there are errors in the second field, focus on nothing
           return;
         }
-        // If no errors in the second field, focus on the third field
         setDockRequestsFocus();
       } else if (target === dockRequestsRef.current) {
-        // If Tab is pressed in the third field, perform validation and handle focus accordingly
         setSubmitButtonFocus();
       }
     }
   };
 
   const setSubmitButtonFocus = () => {
-    // Perform validation before shifting focus to the submit button
     validateDockRequests();
 
-    // Check if there are no errors in the third field
     if (!errorForDockRequests) {
-      // If there are no errors in the third field, focus on the submit button
       submitButtonRef.current.focus();
     } else {
-      // If there are errors in the third field, focus on nothing and handle focus on other fields
       if (errorForTotalFloors) {
         totalFloorsRef.current.focus();
       } else if (errorForCurrFloor) {
@@ -71,7 +59,6 @@ const ElevatorForm = ({ onSubmit }) => {
       }
     }
 
-    // Enable or disable the submit button based on overall form validity
     updateFormReady();
   };
 
@@ -83,8 +70,6 @@ const ElevatorForm = ({ onSubmit }) => {
       validateCurrFloor();
     } else if (target === dockRequestsRef.current && dockRequests) {
       validateDockRequests();
-
-      // Update form readiness after dock requests validation
       updateFormReady();
     }
   };
@@ -93,7 +78,6 @@ const ElevatorForm = ({ onSubmit }) => {
     const inputValue = e.target.value;
     setDockRequests(inputValue);
 
-    // Check for errors only when focus is moved away
     if (!dockRequestsRef.current.contains(document.activeElement)) {
       validateDockRequests();
     }
@@ -102,7 +86,6 @@ const ElevatorForm = ({ onSubmit }) => {
   const validateDockRequests = () => {
     let dockRequestValues = dockRequests.split(',').map((floor) => floor.trim());
 
-    // Check for a trailing comma and remove it
     if (dockRequestValues[dockRequestValues.length - 1] === '') {
       dockRequestValues = dockRequestValues.slice(0, -1);
     }
@@ -110,10 +93,7 @@ const ElevatorForm = ({ onSubmit }) => {
     const dockRequestErrors = [];
 
     for (const floor of dockRequestValues) {
-      // Trim each floor value before validating
       const trimmedFloor = floor.trim();
-
-      // Reject if the floor is not a positive integer or greater than totalFloors
       const parsedFloor = parseInt(trimmedFloor, 10);
       if (!/^\d+$/.test(trimmedFloor) || parsedFloor <= 0 || parsedFloor > parseInt(totalFloors, 10)) {
         dockRequestErrors.push(`${trimmedFloor} is not a valid floor`);
@@ -127,14 +107,9 @@ const ElevatorForm = ({ onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check if the form is ready for submission
     if (isFormReady) {
-      // Trim trailing comma from dockRequests
       const trimmedDockRequests = dockRequests.replace(/,\s*$/, '');
-
-      // Check if there are no errors before submitting
       if (!errorForTotalFloors && !errorForCurrFloor && !errorForDockRequests) {
-        // Your existing form submission logic here
         onSubmit({
           totalFloors: parseInt(totalFloors, 10),
           currFloor: parseInt(currFloor, 10),
@@ -189,14 +164,12 @@ const ElevatorForm = ({ onSubmit }) => {
       currFloor &&
       dockRequests
     );
-    // Clear submit error message when any form field is focused
     setSubmitError('');
   };
 
   useEffect(() => {
-    // Set focus on the first input field when the component mounts
     setTotalFloorsFocus();
-  }, []); // Empty dependency array ensures it only runs once on mount
+  }, []);
 
   return (
     <form className="elevator-form" onSubmit={handleSubmit}>

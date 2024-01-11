@@ -2,7 +2,7 @@
   text-align: center;
   margin-bottom: 20px;
   display: flex;
-  justify-content: center; /* Update this line to center the content horizontally */
+  justify-content: center;
   align-items: center;
   border: 1px solid black;
 }
@@ -11,11 +11,11 @@ h1 {
   font-size: 2em;
   font-weight: bold;
   margin-bottom: 8px;
-  color: black; /* Change text color to black */
+  color: black; 
 }
 
 .header-image {
-  width: 50px; /* Set the width as needed */
-  height: auto; /* Maintain aspect ratio */
+  width: 50px;
+  height: auto;
   padding-left: 20px;
 }
